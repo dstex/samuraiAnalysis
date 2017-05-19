@@ -11,9 +11,8 @@ def getFLpathData(flFile,pathStrt,pathEnd,crdsOnly=False):
     ----------
     flFile : string
         Filename of the flight-level file to be loaded.
-    pathStrt,pathEnd : strings
-        Start/end times of the flight path. Must be formatted as such:
-        "YYYYMMDD-HHMMSS"
+    pathStrt,pathEnd : datetimes
+        Start/end times of the flight path.
     crdsOnly : bool, optional
         If True, only lat/lon will be extracted and returned (for speed).
     
@@ -44,14 +43,11 @@ def getFLpathData(flFile,pathStrt,pathEnd,crdsOnly=False):
     
     flDateStr = np.empty(np.shape(flHH),dtype=object)
     for ix in range(0,len(flHH)):
-        flDateStr[ix] = pathStrt[:8] + '-' + flHH[ix] + ':' + flMM[ix] + ':' + flSS[ix]
+        flDateStr[ix] = dt.strftime(pathStrt, '%Y%m%d') + '-' + flHH[ix] + ':' + flMM[ix] + ':' + flSS[ix]
     flDT = np.asarray([dt.strptime(fDate,'%Y%m%d-%H:%M:%S') for fDate in flDateStr])
     
-    pathStrtDT = dt.strptime(pathStrt,'%Y%m%d-%H%M%S')
-    pathEndDT = dt.strptime(pathEnd,'%Y%m%d-%H%M%S')
-    
-    flStrtIx = np.squeeze(np.where(flDT == pathStrtDT))
-    flEndIx = np.squeeze(np.where(flDT == pathEndDT))
+    flStrtIx = np.squeeze(np.where(flDT == pathStrt))
+    flEndIx = np.squeeze(np.where(flDT == pathEnd))
     
     flLatPath = flLat[flStrtIx:flEndIx+1]
     flLonPath = flLon[flStrtIx:flEndIx+1]

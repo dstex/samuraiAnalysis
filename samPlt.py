@@ -336,7 +336,8 @@ def contourSamurai(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),pltVec=False,
         plt.ylabel('Latitude ($^{\circ}$)')
         plt.title(titleStr)
         if pltVec:
-            quiv = plt.quiver(x[1::5],y[1::5],quivU[pltLevIx,1::5,1::5],quivV[pltLevIx,1::5,1::5],transform=proj)
+            quiv = plt.quiver(x[1::5],y[1::5],quivU[pltLevIx,1::5,1::5],quivV[pltLevIx,1::5,1::5],
+                              scale=60,scale_units='inches',transform=proj)
             quivKey = plt.quiverkey(quiv, 0.92, 1.05, quivKeySpd, 
                                     repr(quivKeySpd) + ' ' + quivKeyUnits, labelpos='S')
         
@@ -350,7 +351,8 @@ def contourSamurai(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),pltVec=False,
         plt.title(titleStr)
         
         if pltVec:
-            quiv = plt.quiver(x[1::5],y[1::5],quivU[pltLevIx,1::5,1::5],quivV[pltLevIx,1::5,1::5])
+            quiv = plt.quiver(x[1::5],y[1::5],quivU[pltLevIx,1::5,1::5],quivV[pltLevIx,1::5,1::5],
+                              scale=60,scale_units='inches')
             quivKey = plt.quiverkey(quiv, 0.92, 1.05, quivKeySpd, 
                                     repr(quivKeySpd) + ' ' + quivKeyUnits, labelpos='S')
         
