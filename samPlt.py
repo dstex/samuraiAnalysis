@@ -6,7 +6,8 @@ Common plotting routines for SAMURAI data.
 
     initMapPlot
     initPlot
-    contourSamurai
+    plotContour
+    plotVec
 """
 
 import pyart
@@ -116,14 +117,12 @@ def initPlot(x,y,figsize=(10,10),zoom=False,xlim=None,ylim=None):
     return fig,ax
 
 
-def contourSamurai(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),pltVec=False,
-                   quivU=None,quivV=None,quivKeySpd=20,quivKeyUnits='m/s',
-                   zoom=False,mapBnds=None,xlim=None,ylim=None,vLimMthd='default',
+def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
+                   mapBnds=None,xlim=None,ylim=None,vLimMthd='default',
                    vLimLevs='all',vLim=None,savePlt=False,savePath=None,
                    runId='',dT=None,noDisp=False):
     """
-    This is the main plotting function within Plot_Samuari. Variable and 
-    level to be plotted are specified, along with the numerous plotting options.
+    This function contours a given variable at some level.
 
     Parameters
     ----------
@@ -147,19 +146,6 @@ def contourSamurai(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),pltVec=False,
         as a string (which could then be searched for relevant keywords like 'dbz').
     figsize : tuple, optional
         Tuple indicating the size of the figure in inches (width, height).
-    pltVec : bool, optional
-        False [default] will not plot velocity vectors. True will plot these vectors,
-        and requires the specification of quivU and quivV variables.
-    quivU : array, optional
-        3-D array (ordered as [level,y/lat,x/lon]) containing the U-component of the wind.
-        Only used if pltVec is True.
-    quivV : array, optional
-        3-D array (ordered as [level,y/lat,x/lon]) containing the V-component of the wind.
-        Only used if pltVec is True.
-    quivKeySpd : float, optional
-        Reference value to use when plotting the wind vector key. Only used if pltVec is True.
-    quivKeyUnits : string, optional
-        String specifying the units of the plotted wind vectors. Only used if pltVec is True.
     zoom : bool, optional
         False [default] to use the x,y bounds for the figure extent. When True,
         xlim and/or ylim lists will be used to specify the figure extent.
@@ -180,10 +166,6 @@ def contourSamurai(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),pltVec=False,
         all vertical levels.
     vLim : tuple of floats, optional
         Supersedes vLimMthd. Provides max and min contouring bounds. Default is None.
-    _savePlt : bool, optional
-        If True, figure will be saved to the specified savePath. Default is False.
-    _savePath : string, optional
-        String indicating the path where the figure should be saved. Required if savePlt is True.
     runId : string, optional
         String indicating a specific run of a SAMURAI analysis. This is used in the title of the figure
         as well as in the figure filename if savePlt is True. In the filename, this string will immediately 
@@ -195,9 +177,6 @@ def contourSamurai(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),pltVec=False,
         Single value Timestamp specifying the date/time of the plotted data. Must be readable by the
         python datetime.datetime.strftime function. If None, 'unknownDT' and
         'Unknown Date/Time' will be used in figure filenames and titles.
-    _noDisp: bool, optional
-        If True, plots will not be displayed. Useful when savePlt is True and making many plots.
-        Default is False.
     
     
 
@@ -335,11 +314,7 @@ def contourSamurai(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),pltVec=False,
         plt.xlabel('Longitude ($^{\circ}$)')
         plt.ylabel('Latitude ($^{\circ}$)')
         plt.title(titleStr)
-        if pltVec:
-            quiv = plt.quiver(x[1::5],y[1::5],quivU[pltLevIx,1::5,1::5],quivV[pltLevIx,1::5,1::5],
-                              scale=60,scale_units='inches',transform=proj)
-            quivKey = plt.quiverkey(quiv, 0.92, 1.05, quivKeySpd, 
-                                    repr(quivKeySpd) + ' ' + quivKeyUnits, labelpos='S')
+
         
     elif crds == 'xy':
         fig,ax = initPlot(x,y,figsize=figsize,zoom=zoom,xlim=xlim,ylim=ylim)
@@ -350,11 +325,6 @@ def contourSamurai(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),pltVec=False,
         plt.ylabel('Distance from Origin (km)')
         plt.title(titleStr)
         
-        if pltVec:
-            quiv = plt.quiver(x[1::5],y[1::5],quivU[pltLevIx,1::5,1::5],quivV[pltLevIx,1::5,1::5],
-                              scale=60,scale_units='inches')
-            quivKey = plt.quiverkey(quiv, 0.92, 1.05, quivKeySpd, 
-                                    repr(quivKeySpd) + ' ' + quivKeyUnits, labelpos='S')
         
     else:
         raise ValueError('Invalid plot coordinate type chosen')
@@ -364,3 +334,48 @@ def contourSamurai(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),pltVec=False,
         return fig,ax,grd,proj
     else:
         return fig,ax,None,None
+        
+        
+        
+def plotVec(x,y,quivU,quivV,crds,proj=None,quivKeySpd=20,quivKeyUnits='m/s',zoom=False,
+            quivKeyX=0.92,quivKeyY=1.05,**kwargs):
+            
+    """
+    Plot wind vectors.
+    
+    Parameters
+    ----------
+    x,y : arrays
+        Arrays containing either the x/y or lon/lat coordinates of the plotted data.
+        Chosen variables should coincide appropriately with crds argument.
+    quivU : array
+        3-D array containing the U-component of the wind.
+    quivV : array
+        3-D array containing the V-component of the wind.
+    crds : {'map', 'xy'}
+        Coordinate system to use for plot. 'map' requires x,y arguments be given
+        as lon,lat values. 'xy' requires x,y arguments be x,y values.
+    quivKeySpd : float, optional
+        Reference value to use when plotting the wind vector key.
+    quivKeyUnits : string, optional
+        String specifying the units of the plotted wind vectors.
+    zoom : bool, optional
+        Currently not implemented.
+    quivKeyX/Y : float, optional
+        Axes relative X/Y coordinates where quiver key will be located.
+    **kwargs : optional
+        Keyword arguments accepted by the plt.quiver() function are valid.
+        
+    """
+            
+    if crds == 'xy':
+        quiv = plt.quiver(x,y,quivU,quivV,scale=60,scale_units='inches',**kwargs)
+        quivKey = plt.quiverkey(quiv, quivKeyX, quivKeyY, quivKeySpd, 
+                                repr(quivKeySpd) + ' ' + quivKeyUnits, labelpos='S')
+    elif crds == 'map':
+        quiv = plt.quiver(x,y,quivU,quivV,scale=60,scale_units='inches',transform=proj,**kwargs)
+        quivKey = plt.quiverkey(quiv, quivKeyX, quivKeyY, quivKeySpd, 
+                                repr(quivKeySpd) + ' ' + quivKeyUnits, labelpos='S')
+    
+    else:
+        raise ValueError('Invalid plot coordinate type chosen')
