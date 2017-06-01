@@ -227,8 +227,8 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
             vmax = vLim[1]
         else:
             if vLimMthd is 'default':
-                vmin = -4
-                vmax = 4
+                vmin = -15
+                vmax = 15
             elif vLimMthd is 'tight':
                 vmin,vmax = getVarLims(var,vLimLevs)
             elif vLimMthd is 'tightM':
@@ -248,8 +248,8 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
             vmax = vLim[1]
         else:
             if vLimMthd is 'default':
-                vmin = -30
-                vmax = 30
+                vmin = -50
+                vmax = 50
             elif vLimMthd is 'tight':
                 vmin,vmax = getVarLims(var,vLimLevs)
             elif vLimMthd is 'tightM':
@@ -269,8 +269,8 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
             vmax = vLim[1]
         else:
             if vLimMthd is 'default':
-                vmin = -30
-                vmax = 30
+                vmin = -50
+                vmax = 50
             elif vLimMthd is 'tight':
                 vmin,vmax = getVarLims(var,vLimLevs)
             elif vLimMthd is 'tightM':
@@ -290,8 +290,8 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
             vmax = vLim[1]
         else:
             if vLimMthd is 'default':
-                vmin = -150
-                vmax = 150
+                vmin = -700
+                vmax = 700
             elif vLimMthd is 'tight':
                 vmin,vmax = getVarLims(var,vLimLevs)
             elif vLimMthd is 'tightM':
