@@ -4,8 +4,7 @@ import numpy as np
 
 def getFLpathData(flFile,pathStrt,pathEnd,crdsOnly=False):
     """
-    Return flight-level data between a path start and end time. These data
-    can then be overlaid on SAMURAI analysis plots if desired.
+    Return flight-level data between a path start and end time.
     
     Parameters
     ----------
@@ -18,45 +17,62 @@ def getFLpathData(flFile,pathStrt,pathEnd,crdsOnly=False):
     
     Returns
     -------
-    flLat,flLon : 1-D float arrays
-        Latitudes and longitudes (degrees) of aircraft between given times.
-    flWS : 1-D float array
-        Flight-level wind speed (m/s) between given times.
-    flWD : 1-D float array
-        Flight-level wind direction (degrees from north) between given times.
-    flDTPath : 1-D datetime array
-        Datetimes between the given times.
+    allData : dict
+        Dictionary containing FL data along the path bounded by the path start/end times.
     """
     
-    flData = xr.open_dataset(flFile,decode_times=False)
+    flData = xr.open_dataset(flFile)
 
-    flLat = flData.get('LatGPS.1').to_masked_array()
-    flLon = flData.get('LonGPS.1').to_masked_array()
-    flHH = (flData.HH.data[:].astype(int)).astype(str)
-    flMM = (flData.MM.data[:].astype(int)).astype(str)
-    flSS = (flData.SS.data[:].astype(int)).astype(str)
+    dtNum = flData.get('datetime_FL').data
+    lat = flData.get('lat').to_masked_array()
+    lon = flData.get('lon').to_masked_array()
+    
     if not crdsOnly:
-        flWS = flData.get('WS.d').to_masked_array()
-        flWD = flData.get('WD.d').to_masked_array()
+        alt = flData.get('Alt').to_masked_array()
+        ws = flData.get('windSpd').to_masked_array()
+        wd = flData.get('windDir').to_masked_array()
+        u = flData.get('u').to_masked_array()
+        v = flData.get('v').to_masked_array()
+        uRel = flData.get('u_relative').to_masked_array()
+        vRel = flData.get('v_relative').to_masked_array()
+        w = flData.get('w_dpj').to_masked_array()
+        staticP = flData.get('staticPres').to_masked_array()
+        dynamicP = flData.get('dynamicPres').to_masked_array()
+        rh = flData.get('RH_hybrid').to_masked_array()
+        temp = flData.get('TA').to_masked_array()
+        td = flData.get('TD').to_masked_array()
         
+    dtStr = np.char.mod('%d',dtNum)
+    flDT = np.asarray([dt.strptime(fDate,'%Y%m%d%H%M%S') for fDate in dtStr])
     
     
-    flDateStr = np.empty(np.shape(flHH),dtype=object)
-    for ix in range(0,len(flHH)):
-        flDateStr[ix] = dt.strftime(pathStrt, '%Y%m%d') + '-' + flHH[ix] + ':' + flMM[ix] + ':' + flSS[ix]
-    flDT = np.asarray([dt.strptime(fDate,'%Y%m%d-%H:%M:%S') for fDate in flDateStr])
+    strtIx = np.squeeze(np.where(flDT == pathStrt))
+    endIx = np.squeeze(np.where(flDT == pathEnd))
     
-    flStrtIx = np.squeeze(np.where(flDT == pathStrt))
-    flEndIx = np.squeeze(np.where(flDT == pathEnd))
+    dtPath = flDT[strtIx:endIx+1]
+    latPath = lat[strtIx:endIx+1]
+    lonPath = lon[strtIx:endIx+1]
     
-    flLatPath = flLat[flStrtIx:flEndIx+1]
-    flLonPath = flLon[flStrtIx:flEndIx+1]
     if not crdsOnly:
-        flDTPath = flDT[flStrtIx:flEndIx+1]
-        flWSPath = flWS[flStrtIx:flEndIx+1]
-        flWDPath = flWD[flStrtIx:flEndIx+1]
-        return flLatPath,flLonPath,flWSPath,flWDPath,flDTPath
+        altPath = alt[strtIx:endIx+1]
+        wsPath = ws[strtIx:endIx+1]
+        wdPath = wd[strtIx:endIx+1]
+        uPath = u[strtIx:endIx+1]
+        vPath = v[strtIx:endIx+1]
+        uRelPath = uRel[strtIx:endIx+1]
+        vRelPath = vRel[strtIx:endIx+1]
+        wPath = w[strtIx:endIx+1]
+        staticPPath = staticP[strtIx:endIx+1]
+        dynamicPPath = dynamicP[strtIx:endIx+1]
+        rhPath = rh[strtIx:endIx+1]
+        tempPath = temp[strtIx:endIx+1]
+        tdPath = td[strtIx:endIx+1]
+    
+        allData = {'datetime': dtPath, 'lat': latPath, 'lon': lonPath, 'alt': altPath,
+                   'windSpd': wsPath, 'windDir': wdPath, 'u': uPath, 'v': vPath,
+                   'uRel': uRelPath, 'vRel': vRelPath, 'w': wPath, 'staticPres': staticPPath,
+                   'dynamicPres': dynamicPPath, 'rh': rhPath, 'temp': tempPath, 'td': tdPath}
     else:
-        return flLatPath,flLonPath
-    
-    
+        allData = {'datetime': dtPath, 'lat': latPath, 'lon': lonPath}
+        
+    return allData
