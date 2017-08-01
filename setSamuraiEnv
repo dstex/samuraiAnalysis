@@ -1,0 +1,9 @@
+#!/bin/bash
+
+echo 'export LD_LIBRARY_PATH=/data/keeling/a/stechma2/software/Qt5.8.0/lib:/data/keeling/a/stechma2/software/lib:/data/keeling/a/stechma2/software/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
+
+echo 'export PATH=/usr/bin:$PATH' >> ~/.bashrc
+echo 'export PATH=/data/keeling/a/stechma2/software/bin:$PATH' >> ~/.bashrc
+echo 'export PATH=/data/keeling/a/stechma2/software/Qt5.8.0/bin:$PATH' >> ~/.bashrc
+
+echo 'export CXX=/data/keeling/a/stechma2/software/bin/gcc' >> ~/.bashrc
