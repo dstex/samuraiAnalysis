@@ -11,6 +11,7 @@ Common plotting routines for SAMURAI data.
     plotXS
     xsKDtree
     xsCrdCald
+    multXSCrdCalc
 """
 
 import pyart
@@ -238,8 +239,8 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
             vmax = vLim[1]
         else:
             if vLimMthd is 'default':
-                vmin = -15
-                vmax = 15
+                vmin = -7
+                vmax = 7
             elif vLimMthd is 'tight':
                 vmin,vmax = getVarLims(var,vLimLevs)
             elif vLimMthd is 'tightM':
@@ -510,8 +511,8 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
             vmax = vLim[1]
         else:
             if vLimMthd is 'default':
-                vmin = -15
-                vmax = 15
+                vmin = -7
+                vmax = 7
             elif vLimMthd is 'tight':
                 vmin,vmax = getVarLims(pltVar,vLimLevs)
             elif vLimMthd is 'tightM':
@@ -749,20 +750,52 @@ def xsCrdCalc(lat1d,lon1d,lat2d,lon2d,xsRes=1.0):
         Heading (in degrees) between the start and end cross-section points.
     """
 
-    lat1 = np.deg2rad(lat1d)
-    lon1 = np.deg2rad(lon1d)
-    lat2 = np.deg2rad(lat2d)
-    lon2 = np.deg2rad(lon2d)
+    lat1tmp = np.deg2rad(lat1d)
+    lon1tmp = np.deg2rad(lon1d)
+    lat2tmp = np.deg2rad(lat2d)
+    lon2tmp = np.deg2rad(lon2d)
+    lon1 = lon1tmp
+    lat1 = lat1tmp
+    lon2 = lon2tmp
+    lat2 = lat2tmp
+    
+    # Ensure that the initial point of the cross-section is the western-most point, and
+    #   in the event the line is N-S oriented, set the initial point to the south.
+    # if lon1tmp > lon2tmp:
+#         print('XS final/initial points swapped to ensure proper wind rotation')
+#         lon1 = lon2tmp
+#         lat1 = lat2tmp
+#         lon2 = lon1tmp
+#         lat2 = lat1tmp
+#     elif lon1tmp < lon2tmp:
+#         lon1 = lon1tmp
+#         lat1 = lat1tmp
+#         lon2 = lon2tmp
+#         lat2 = lat2tmp
+#     elif lon1tmp == lon2tmp:
+#         if lat1tmp > lat2tmp:
+#             print('XS final/initial points swapped to ensure proper wind rotation')
+#             lon1 = lon2tmp
+#             lat1 = lat2tmp
+#             lon2 = lon1tmp
+#             lat2 = lat1tmp
+#         else:
+#             lon1 = lon1tmp
+#             lat1 = lat1tmp
+#             lon2 = lon2tmp
+#             lat2 = lat2tmp
     
     # Calculate the bearing/heading between the start and end points
-    # I believe the southern/western-most point must be given as the "initial"
+    # I believe the western-most point must be given as the "initial"
     #    point for the returned heading to work properly with the wind rotation scheme
+    # In the event the two longitudes are the same (XS perfectly N-S), the southern-most
+    #    point should be given as the initial point.
     tempX = np.cos(lat2)*np.sin(lon2-lon1)
     tempY = (np.cos(lat1)*np.sin(lat2)) - np.sin(lat1)*np.cos(lat2)*np.cos(lon2-lon1)
     hdng = np.rad2deg(np.arctan2(tempX,tempY))
 
     if hdng < 0:
-        hdng += 360.0
+        hdng += 360
 
     a = (np.sin((lat2-lat1)/2))**2 + (np.cos(lat1)*np.cos(lat2)*(np.sin((lon2-lon1)/2))**2) #square of half the chord length between the points
     c = 2*np.arctan2(np.sqrt(a),np.sqrt(1-a)) #angular distance in radians
@@ -794,3 +827,40 @@ def xsCrdCalc(lat1d,lon1d,lat2d,lon2d,xsRes=1.0):
         aIx += 1
     
     return xsLat, xsLon, dRnd, hdng
+    
+def multXSCrdCalc(lat1d,lon1d,distKM,hdng):
+    """
+    Calculates lat/lon pairs at some distance and heading from a given point.
+    This is useful for defining consecutive cross-sections spaced at some given distance.
+
+    Parameters
+    ----------
+    lat1d,lon1d : float
+        Lon/lat coordinates (degrees) of the start/end of reference cross-section.
+    distKM : float
+        Distance from reference point to obtain new point at (in KM)
+    hdng : float
+        Heading (relative to north) of new point relative to reference point.
+     
+    
+
+    Returns
+    -------
+    newLat,newLon : floats
+        Lat/lon (in degrees) of new XS start/end point.
+    """
+
+    lat1 = np.deg2rad(lat1d)
+    lon1 = np.deg2rad(lon1d)
+    
+    rEarth = 6371
+    hdngRad = np.deg2rad(hdng)
+    
+    lat2 = np.arcsin( np.sin(lat1)*np.cos(distKM/rEarth) + np.cos(lat1)*np.sin(distKM/rEarth)*np.cos(hdngRad) )
+
+    lon2 = lon1 + np.arctan2( np.sin(hdngRad)*np.sin(distKM/rEarth)*np.cos(lat1), np.cos(distKM/rEarth)-np.sin(lat1)*np.sin(lat2) )
+    
+    newLat = np.rad2deg(lat2)
+    newLon = np.rad2deg(lon2)
+    
+    return newLat, newLon
