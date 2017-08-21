@@ -231,7 +231,8 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
         
         
     elif pltFlag == 'w':
-        cmap = pyart.graph.cm.GrMg16
+        # cmap = pyart.graph.cm.GrMg16
+        cmap = 'RdBu_r'
         cmapLbl = 'Vertical Velocity $(m s^{-1})$'
         
         if vLim:
@@ -252,7 +253,8 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
         
         
     elif pltFlag == 'u':
-        cmap = pyart.graph.cm.GrMg16
+        # cmap = pyart.graph.cm.GrMg16
+        cmap = 'RdBu_r'
         cmapLbl = 'U Wind Component $(m s^{-1})$'
         
         if vLim:
@@ -273,7 +275,8 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
         
         
     elif pltFlag == 'v':
-        cmap = pyart.graph.cm.GrMg16
+        # cmap = pyart.graph.cm.GrMg16
+        cmap = 'RdBu_r'
         cmapLbl = 'V Wind Component $(m s^{-1})$'
         
         if vLim:
@@ -503,7 +506,8 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
         
         
     elif pltFlag == 'w':
-        cmap = pyart.graph.cm.GrMg16
+        # cmap = pyart.graph.cm.GrMg16
+        cmap = 'RdBu_r'
         cmapLbl = 'Vertical Velocity $(m s^{-1})$'
         
         if vLim:
@@ -511,8 +515,8 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
             vmax = vLim[1]
         else:
             if vLimMthd is 'default':
-                vmin = -7
-                vmax = 7
+                vmin = -4
+                vmax = 4
             elif vLimMthd is 'tight':
                 vmin,vmax = getVarLims(pltVar,vLimLevs)
             elif vLimMthd is 'tightM':
@@ -524,16 +528,17 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
         
         
     elif pltFlag == 'u':
-        cmap = pyart.graph.cm.GrMg16
-        cmapLbl = 'U Wind Component $(m s^{-1})$'
+        # cmap = pyart.graph.cm.GrMg16
+        cmap = 'RdBu_r'
+        cmapLbl = 'XS $\parallel$ Wind Component $(m s^{-1})$'
         
         if vLim:
             vmin = vLim[0]
             vmax = vLim[1]
         else:
             if vLimMthd is 'default':
-                vmin = -50
-                vmax = 50
+                vmin = -30
+                vmax = 30
             elif vLimMthd is 'tight':
                 vmin,vmax = getVarLims(pltVar,vLimLevs)
             elif vLimMthd is 'tightM':
@@ -545,16 +550,17 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
         
         
     elif pltFlag == 'v':
-        cmap = pyart.graph.cm.GrMg16
-        cmapLbl = 'V Wind Component $(m s^{-1})$'
+        # cmap = pyart.graph.cm.GrMg16
+        cmap = 'RdBu_r'
+        cmapLbl = 'XS $\perp$ Wind Component $(m s^{-1})$'
         
         if vLim:
             vmin = vLim[0]
             vmax = vLim[1]
         else:
             if vLimMthd is 'default':
-                vmin = -50
-                vmax = 50
+                vmin = -30
+                vmax = 30
             elif vLimMthd is 'tight':
                 vmin,vmax = getVarLims(pltVar,vLimLevs)
             elif vLimMthd is 'tightM':
@@ -566,7 +572,8 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
         
         
     elif pltFlag == 'vort':
-        cmap = pyart.graph.cm.GrMg16
+        # cmap = pyart.graph.cm.GrMg16
+        cmap = 'RdBu_r'
         cmapLbl = 'Vertical Vorticity $(s^{-1})$'
         
         if vLim:
@@ -574,8 +581,8 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
             vmax = vLim[1]
         else:
             if vLimMthd is 'default':
-                vmin = -700
-                vmax = 700
+                vmin = -400
+                vmax = 400
             elif vLimMthd is 'tight':
                 vmin,vmax = getVarLims(pltVar,vLimLevs)
             elif vLimMthd is 'tightM':
@@ -614,9 +621,13 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
         xsAngl = hdng
     
     # Calculate the rotated wind components then flatten the 3-D arrays
-    rotAngl = np.deg2rad(90-xsAngl) 
-    uRot3d = (u3d * np.sin(rotAngl)) - (v3d * np.cos(rotAngl)) 
-    vRot3d = (u3d * np.cos(rotAngl)) + (v3d * np.sin(rotAngl))
+    # rotAngl = np.deg2rad(90-xsAngl) 
+    # uRot3d = (u3d * np.sin(rotAngl)) - (v3d * np.cos(rotAngl)) # Rotates V || to XS - and incorrectly sometimes 
+    # vRot3d = (u3d * np.cos(rotAngl)) + (v3d * np.sin(rotAngl))
+    rotAngl = np.deg2rad(xsAngl) 
+    uRot3d = (u3d * np.cos(rotAngl)) + (v3d * np.sin(rotAngl)) # Rotates U || to XS
+    vRot3d = (v3d * np.cos(rotAngl)) - (u3d * np.sin(rotAngl))
+    
     uRot = uRot3d.reshape(shape3d[0],-1)
     vRot = vRot3d.reshape(shape3d[0],-1)
 
@@ -642,6 +653,10 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
                 xsW[iz,ix] = w[iz,matchIx[ix]]
 
 
+    if pltFlag == 'u':
+        xsPltVar = xsUrot
+    if pltFlag == 'v':
+        xsPltVar = xsVrot
 
     if xCrd == 'lat':
         x = xsCrds[1,:]
@@ -659,7 +674,7 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
     plt.title(titleStr)
 
     if vecPlt:
-        plotVec(x[1::3],alt1d,xsVrot[:,1::3],xsW[:,1::3],crds='xs',quivKeyX=0.97,quivKeyY=1.07)
+        plotVec(x[1::3],alt1d,xsUrot[:,1::3],xsW[:,1::3],crds='xs',quivKeyX=0.97,quivKeyY=1.07)
         
     return fig,ax
     
@@ -754,44 +769,44 @@ def xsCrdCalc(lat1d,lon1d,lat2d,lon2d,xsRes=1.0):
     lon1tmp = np.deg2rad(lon1d)
     lat2tmp = np.deg2rad(lat2d)
     lon2tmp = np.deg2rad(lon2d)
-    lon1 = lon1tmp
-    lat1 = lat1tmp
-    lon2 = lon2tmp
-    lat2 = lat2tmp
+    # lon1 = lon1tmp
+#     lat1 = lat1tmp
+#     lon2 = lon2tmp
+#     lat2 = lat2tmp
     
     # Ensure that the initial point of the cross-section is the western-most point, and
     #   in the event the line is N-S oriented, set the initial point to the south.
-    # if lon1tmp > lon2tmp:
-#         print('XS final/initial points swapped to ensure proper wind rotation')
-#         lon1 = lon2tmp
-#         lat1 = lat2tmp
-#         lon2 = lon1tmp
-#         lat2 = lat1tmp
-#     elif lon1tmp < lon2tmp:
-#         lon1 = lon1tmp
-#         lat1 = lat1tmp
-#         lon2 = lon2tmp
-#         lat2 = lat2tmp
-#     elif lon1tmp == lon2tmp:
-#         if lat1tmp > lat2tmp:
-#             print('XS final/initial points swapped to ensure proper wind rotation')
-#             lon1 = lon2tmp
-#             lat1 = lat2tmp
-#             lon2 = lon1tmp
-#             lat2 = lat1tmp
-#         else:
-#             lon1 = lon1tmp
-#             lat1 = lat1tmp
-#             lon2 = lon2tmp
-#             lat2 = lat2tmp
+    if lon1tmp > lon2tmp:
+        print('XS final/initial points swapped to ensure proper wind rotation')
+        lon1 = lon2tmp
+        lat1 = lat2tmp
+        lon2 = lon1tmp
+        lat2 = lat1tmp
+    elif lon1tmp < lon2tmp:
+        lon1 = lon1tmp
+        lat1 = lat1tmp
+        lon2 = lon2tmp
+        lat2 = lat2tmp
+    elif lon1tmp == lon2tmp:
+        if lat1tmp > lat2tmp:
+            print('XS final/initial points swapped to ensure proper wind rotation')
+            lon1 = lon2tmp
+            lat1 = lat2tmp
+            lon2 = lon1tmp
+            lat2 = lat1tmp
+        else:
+            lon1 = lon1tmp
+            lat1 = lat1tmp
+            lon2 = lon2tmp
+            lat2 = lat2tmp
     
     # Calculate the bearing/heading between the start and end points
     # I believe the western-most point must be given as the "initial"
     #    point for the returned heading to work properly with the wind rotation scheme
     # In the event the two longitudes are the same (XS perfectly N-S), the southern-most
     #    point should be given as the initial point.
-    tempX = np.cos(lat2)*np.sin(lon2-lon1)
-    tempY = (np.cos(lat1)*np.sin(lat2)) - np.sin(lat1)*np.cos(lat2)*np.cos(lon2-lon1)
+    tempY = np.sin(lon2-lon1)*np.cos(lat2)
+    tempX = (np.cos(lat1)*np.sin(lat2)) - (np.sin(lat1)*np.cos(lat2)*np.cos(lon2-lon1))
     hdng = np.rad2deg(np.arctan2(tempX,tempY))
 
     if hdng < 0:
