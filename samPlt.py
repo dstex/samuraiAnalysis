@@ -133,7 +133,7 @@ def initPlot(figsize=(10,10),zoom=False,xlim=None,ylim=None):
 
 def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
                    mapBnds=None,xlim=None,ylim=None,vLimMthd='default',
-                   vLimLevs='all',vLim=None,runId='',dT=None,NB=False):
+                   vLimLevs='all',vLim=None,runId='',dT=None,NB=False,strmRel=False):
     """
     This function contours a given variable at some level.
 
@@ -189,6 +189,8 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
     NB : bool, optional
         If True, create a figure without a frame, and with no axis labels. This is particularly
         useful if planning to make a Google Earth KML file from the output figure. 
+    strmRel : bool, optional
+        If True, label plotted wind variables appropriately.
     
 
     Returns
@@ -255,7 +257,10 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
     elif pltFlag == 'u':
         # cmap = pyart.graph.cm.GrMg16
         cmap = 'RdBu_r'
-        cmapLbl = 'U Wind Component $(m s^{-1})$'
+        if strmRel:
+            cmapLbl = 'Storm-Relative U Wind Component $(m s^{-1})$'
+        else:
+            cmapLbl = 'U Wind Component $(m s^{-1})$'
         
         if vLim:
             vmin = vLim[0]
@@ -277,7 +282,10 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
     elif pltFlag == 'v':
         # cmap = pyart.graph.cm.GrMg16
         cmap = 'RdBu_r'
-        cmapLbl = 'V Wind Component $(m s^{-1})$'
+        if strmRel:
+            cmapLbl = 'Storm-Relative V Wind Component $(m s^{-1})$'
+        else:
+            cmapLbl = 'V Wind Component $(m s^{-1})$'
         
         if vLim:
             vmin = vLim[0]
@@ -404,7 +412,7 @@ def plotVec(x,y,quivU,quivV,crds,proj=None,quivKeySpd=20,quivKeyUnits='m/s',zoom
 
 def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
                    xsAngl=None,xsRes=1.0,leafSz=1,xCrd='lat',figsize=(10,5),vecPlt=False,
-                   vLimMthd='default',vLimLevs='all',vLim=None,runId='',dT=None):
+                   vLimMthd='default',vLimLevs='all',vLim=None,runId='',dT=None,strmRel=False):
     """
     This function contours a given variable at some level.
 
@@ -462,6 +470,8 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
         Single value Timestamp specifying the date/time of the plotted data. Must be readable by the
         python datetime.datetime.strftime function. If None, 'unknownDT' and
         'Unknown Date/Time' will be used in figure filenames and titles.
+    strmRel : bool, optional
+        If True, label plotted wind variables appropriately.
     
     
 
@@ -530,7 +540,10 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
     elif pltFlag == 'u':
         # cmap = pyart.graph.cm.GrMg16
         cmap = 'RdBu_r'
-        cmapLbl = 'XS $\parallel$ Wind Component $(m s^{-1})$'
+        if strmRel:
+            cmapLbl = 'XS $\parallel$ Storm-Relative Wind Component $(m s^{-1})$'
+        else:
+            cmapLbl = 'XS $\parallel$ Wind Component $(m s^{-1})$'
         
         if vLim:
             vmin = vLim[0]
@@ -552,7 +565,10 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
     elif pltFlag == 'v':
         # cmap = pyart.graph.cm.GrMg16
         cmap = 'RdBu_r'
-        cmapLbl = 'XS $\perp$ Wind Component $(m s^{-1})$'
+        if strmRel:
+            cmapLbl = 'XS $\perp$ Storm-Relative Wind Component $(m s^{-1})$'
+        else:
+            cmapLbl = 'XS $\perp$ Wind Component $(m s^{-1})$'
         
         if vLim:
             vmin = vLim[0]
