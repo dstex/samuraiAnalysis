@@ -323,6 +323,27 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
                 vmin,vmax = getVarLims(var,vLimLevs,excldFrame=True)
             elif vLimMthd is 'tightEM':
                 vmin,vmax = getVarLims(var,vLimLevs,mirror=True,excldFrame=True)
+                
+    elif pltFlag == 'wind':
+        # cmap = pyart.graph.cm.GrMg16
+        cmap = 'gist_rainbow_r'
+        cmapLbl = 'Wind Speed $(s^{-1})$'
+        
+        if vLim:
+            vmin = vLim[0]
+            vmax = vLim[1]
+        else:
+            if vLimMthd is 'default':
+                vmin = 0
+                vmax = 60
+            elif vLimMthd is 'tight':
+                vmin,vmax = getVarLims(pltVar,vLimLevs)
+            elif vLimMthd is 'tightM':
+                vmin,vmax = getVarLims(pltVar,vLimLevs,mirror=True)
+            elif vLimMthd is 'tightE':
+                vmin,vmax = getVarLims(pltVar,vLimLevs,excldFrame=True)
+            elif vLimMthd is 'tightEM':
+                vmin,vmax = getVarLims(pltVar,vLimLevs,mirror=True,excldFrame=True)
         
         
     else:
@@ -607,6 +628,27 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
                 vmin,vmax = getVarLims(pltVar,vLimLevs,excldFrame=True)
             elif vLimMthd is 'tightEM':
                 vmin,vmax = getVarLims(pltVar,vLimLevs,mirror=True,excldFrame=True)
+                
+    elif pltFlag == 'wind':
+        # cmap = pyart.graph.cm.GrMg16
+        cmap = 'gist_rainbow_r'
+        cmapLbl = 'Wind Speed $(s^{-1})$'
+        
+        if vLim:
+            vmin = vLim[0]
+            vmax = vLim[1]
+        else:
+            if vLimMthd is 'default':
+                vmin = 0
+                vmax = 60
+            elif vLimMthd is 'tight':
+                vmin,vmax = getVarLims(pltVar,vLimLevs)
+            elif vLimMthd is 'tightM':
+                vmin,vmax = getVarLims(pltVar,vLimLevs,mirror=True)
+            elif vLimMthd is 'tightE':
+                vmin,vmax = getVarLims(pltVar,vLimLevs,excldFrame=True)
+            elif vLimMthd is 'tightEM':
+                vmin,vmax = getVarLims(pltVar,vLimLevs,mirror=True,excldFrame=True)
         
         
     else:
@@ -785,36 +827,36 @@ def xsCrdCalc(lat1d,lon1d,lat2d,lon2d,xsRes=1.0):
     lon1tmp = np.deg2rad(lon1d)
     lat2tmp = np.deg2rad(lat2d)
     lon2tmp = np.deg2rad(lon2d)
-    # lon1 = lon1tmp
-#     lat1 = lat1tmp
-#     lon2 = lon2tmp
-#     lat2 = lat2tmp
+    lon1 = lon1tmp
+    lat1 = lat1tmp
+    lon2 = lon2tmp
+    lat2 = lat2tmp
     
     # Ensure that the initial point of the cross-section is the western-most point, and
     #   in the event the line is N-S oriented, set the initial point to the south.
-    if lon1tmp > lon2tmp:
-        print('XS final/initial points swapped to ensure proper wind rotation')
-        lon1 = lon2tmp
-        lat1 = lat2tmp
-        lon2 = lon1tmp
-        lat2 = lat1tmp
-    elif lon1tmp < lon2tmp:
-        lon1 = lon1tmp
-        lat1 = lat1tmp
-        lon2 = lon2tmp
-        lat2 = lat2tmp
-    elif lon1tmp == lon2tmp:
-        if lat1tmp > lat2tmp:
-            print('XS final/initial points swapped to ensure proper wind rotation')
-            lon1 = lon2tmp
-            lat1 = lat2tmp
-            lon2 = lon1tmp
-            lat2 = lat1tmp
-        else:
-            lon1 = lon1tmp
-            lat1 = lat1tmp
-            lon2 = lon2tmp
-            lat2 = lat2tmp
+#     if lon1tmp > lon2tmp:
+#         print('XS final/initial points swapped to ensure proper wind rotation')
+#         lon1 = lon2tmp
+#         lat1 = lat2tmp
+#         lon2 = lon1tmp
+#         lat2 = lat1tmp
+#     elif lon1tmp < lon2tmp:
+#         lon1 = lon1tmp
+#         lat1 = lat1tmp
+#         lon2 = lon2tmp
+#         lat2 = lat2tmp
+#     elif lon1tmp == lon2tmp:
+#         if lat1tmp > lat2tmp:
+#             print('XS final/initial points swapped to ensure proper wind rotation')
+#             lon1 = lon2tmp
+#             lat1 = lat2tmp
+#             lon2 = lon1tmp
+#             lat2 = lat1tmp
+#         else:
+#             lon1 = lon1tmp
+#             lat1 = lat1tmp
+#             lon2 = lon2tmp
+#             lat2 = lat2tmp
     
     # Calculate the bearing/heading between the start and end points
     # I believe the western-most point must be given as the "initial"
