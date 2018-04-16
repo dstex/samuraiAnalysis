@@ -64,27 +64,41 @@ grTxt:
 plotXScts: true
 pltVecXS: true
 
-avgXS: false
-numXSavg: 30
-leafSz: 15
-XSavgHdng: 50.4
-XSavgInitLatStrt: 44.1
-XSavgInitLatEnd: 43.275
-XSavgInitLonStrt: -98.576
-XSavgInitLonEnd: -98.051
-
-xsEnd:
-- !!python/tuple
-  - 43.962
-  - -98.068
-xsStrt:
-- !!python/tuple
-  - 43.179
-  - -97.831
-
 pltDBZx: false
 pltUx: false
 pltVx: false
 pltWx: true
 pltVortX: false
 pltWndSpdX: false
+
+
+avgXS: false
+# Number of adjacent points to include in average to either
+# side of given XS line (only if avgXS is True)
+leafSz: 15
+
+multXS: false
+# Settings for creating multiple parallel cross-sections
+# (only used if multXS is True)
+numXS: 30
+multXShdng: 50.4
+multXSinitLatStrt: 44.1
+multXSinitLatEnd: 43.275
+multXSinitLonStrt: -98.576
+multXSinitLonEnd: -98.051
+
+
+xsStrt:
+- !!python/tuple
+  - 44.265
+  - -98.417
+- !!python/tuple
+  - 44.265
+  - -98.227
+xsEnd:
+- !!python/tuple
+  - 42.563
+  - -98.017
+- !!python/tuple
+  - 42.667
+  - -97.877

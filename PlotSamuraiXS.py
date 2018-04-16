@@ -158,58 +158,16 @@ def xsContour(pltVar,pltVarLbl,xsStrtTmp,xsEndTmp,xsIX):
     plt.close()
 
 
-strmRel = False
-
-fType = 'png'
-dirPost = '_dbz-w-XS1-8'
-dtDir   = True
-saveKML = False
-
-## Plan view plot settings
-plotPlanViews = True
-setPltLevs = -2
-noBorder  = False
-unifyBnds = False
-pltRAP    = False
-pltVec    = True
-plotXSloc = True
-pltGRlocs = True
-
-pltDBZ    = True
-pltU      = False
-pltV      = False
-pltW      = True
-pltVort   = False
-pltWndSpd = False
-
-#Cross-section plot settings
-plotXScts = True
-pltVecXS  = True
-multXS    = False
-avgXS     = False
-
-pltDBZx    = True
-pltUx      = False
-pltVx      = False
-pltWx      = True
-pltVortX   = False
-pltWndSpdX = False
-
-xsStrt = [(44.265,-98.417),(44.265,-98.227),(44.265,-98.004),(44.265,-97.827),
-            (44.265,-97.635),(44.265,-97.471),(44.265,-97.312),(44.265,-97.150)]
-xsEnd = [(42.563,-98.017),(42.667,-97.877),(42.765,-97.690),(42.834,-97.529),
-            (42.850,-97.338),(42.891,-97.200),(42.924,-97.064),(42.968,-96.916)]
-
 
 prmFiles = sorted(glob('/Users/danstechman/GoogleDrive/PECAN-Data/samurai/20150706/*_SR1-*/*.yml'))
                                                          
 for pltSamPrmsFile in prmFiles:
-    pltLevs = setPltLevs # Reinitialize plot levels if needed
     with open(pltSamPrmsFile, 'r') as pltSamPrms:
         prmsIn = yaml.load(pltSamPrms)
     
     for key,val in prmsIn.items():
             exec(key + '=val')
+
 
     print('\nWorking on case: {}'.format(outPrefix))
     print('\tUsing SAMURAI parameter file: {}\n'.format(pltSamPrmsFile))
@@ -268,9 +226,9 @@ for pltSamPrmsFile in prmFiles:
 
     # Determine if we're plotting every or every other level
     # (if neither -1 nor -2, then pltLevs is given a list of levels in the params file)
-    if pltLevs == -1:
+    if pltLevs[0] == -1:
         pltLevs = samData['alt']
-    elif pltLevs == -2:
+    elif pltLevs[0] == -2:
         pltLevs = samData['alt'][2::2]
     
     
