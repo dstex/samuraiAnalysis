@@ -1,7 +1,11 @@
 flight: '20150706'
 samPrefix: /Users/danstechman/GoogleDrive/PECAN-Data/samurai/
-outPrefix: 0322_SR1-XP-D8-FSD
-dirPost: _SR_wXS
+
+maskCombo: false
+outPrefix_master: 0322_SR1-XP-D8-FSD
+outPrefix_sub1: None
+
+dirPost: '_SR_wXS'
 
 strmRel: true
 strmU: 7.0
@@ -23,12 +27,17 @@ unifiedMapBnds:
 - 45.0
 pltLevs:
 - -2
+#- -1
+#- 1
+#- 2
+#- 3
+#- 4.5
 
-pltDBZ: false
-pltU: false
-pltV: false
-pltW: true
-pltVort: false
+pltDBZ:    false
+pltU:      false
+pltV:      false
+pltW:      true
+pltVort:   false
 pltWndSpd: false
 
 pltVec: true
