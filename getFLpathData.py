@@ -1,6 +1,10 @@
+import warnings
+warnings.filterwarnings("ignore",category=FutureWarning)
 import xarray as xr
 from datetime import datetime as dt
 import numpy as np
+
+warnings.filterwarnings('ignore', 'invalid value encountered in less')
 
 def getFLpathData(flFile,pathStrt,pathEnd,crdsOnly=False):
     """

@@ -15,6 +15,7 @@ Common plotting routines for SAMURAI data.
 """
 
 import pyart
+import warnings
 from matplotlib import pyplot as plt
 import numpy as np
 import numpy.ma as ma
@@ -26,6 +27,8 @@ from scipy.spatial import cKDTree
 from samuraiAnalysis import getVarLims
 
 getVarLims = getVarLims.getVarLims
+
+warnings.filterwarnings('ignore', 'invalid value encountered in less')
 
 def initMapPlot(lon,lat,figsize=(10,10),zoom=False,mapBnds=None,NB=False):
     """

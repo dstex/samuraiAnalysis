@@ -9,8 +9,12 @@ Import SAMURAI data and return a dictionary of variables.
 """
 
 import numpy as np
+import warnings
+warnings.filterwarnings("ignore",category=FutureWarning)
 import xarray as xr
 import pandas as pd
+
+warnings.filterwarnings('ignore', 'invalid value encountered in less')
 
 
 def samImport(samFile):

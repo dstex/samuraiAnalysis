@@ -10,8 +10,11 @@ Import GRIB2 data (must be converted to netCDF) and return a dictionary of varia
 """
 
 import numpy as np
+import warnings
+warnings.filterwarnings("ignore",category=FutureWarning)
 import xarray as xr
 from datetime import datetime as dt
+
 
 
 def gribImport(gribFile):

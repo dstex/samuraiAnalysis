@@ -1,4 +1,5 @@
 import os
+import warnings
 from datetime import datetime as dt
 from matplotlib import pyplot as plt
 import numpy as np
@@ -21,6 +22,9 @@ plotXS = samPlt.plotXS
 xsCalc = samPlt.xsCrdCalc
 multXSCrdCalc = samPlt.multXSCrdCalc
 makeKML = makeKML.makeKML
+
+warnings.filterwarnings('ignore', 'invalid value encountered in less')
+warnings.filterwarnings('ignore', 'tight_layout : falling back to Agg renderer')
 
 
 
