@@ -16,6 +16,8 @@ Common plotting routines for SAMURAI data.
 
 import pyart
 import warnings
+import matplotlib as mpl
+# mpl.use('PDF')
 from matplotlib import pyplot as plt
 import numpy as np
 import numpy.ma as ma
@@ -23,6 +25,7 @@ from datetime import datetime as dt
 import cartopy.crs as ccrs
 import cartopy.feature as cf
 from scipy.spatial import cKDTree
+
 
 from samuraiAnalysis import getVarLims
 
@@ -217,7 +220,7 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
         
     
     if pltFlag == 'dbz':
-        cmap = pyart.graph.cm.NWSRef
+        cmap = pyart.graph.cm_colorblind.HomeyerRainbow
 #         cmap = pyart.graph.cm.Gray9
         cmapLbl = 'Reflectivity $(dBZ)$'
         
@@ -226,19 +229,22 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
             vmax = vLim[1]
         else:
             if vLimMthd is 'default':
-                vmin = -8
-                vmax = 72
+                vmin = -4
+                vmax = 60
             elif vLimMthd is 'tight':
                 vmin,vmax = getVarLims(var,vLimLevs)
             elif vLimMthd is 'tightE':
                 vmin,vmax = getVarLims(var,vLimLevs,excldFrame=True)
             # Not including mirrored options as likely not used for reflectivity
+            
+        bounds = np.linspace(vmin,vmax,(np.abs(vmin)+np.abs(vmax)+1))
+        norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
         
         
     elif pltFlag == 'w':
         # cmap = pyart.graph.cm.GrMg16
-        cmap = 'RdBu_r'
-        cmapLbl = 'Vertical Velocity $(m s^{-1})$'
+        cmap = plt.get_cmap('RdBu_r')
+        cmapLbl = 'Vertical Velocity $(m\ s^{-1})$'
         
         if vLim:
             vmin = vLim[0]
@@ -255,15 +261,18 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
                 vmin,vmax = getVarLims(var,vLimLevs,excldFrame=True)
             elif vLimMthd is 'tightEM':
                 vmin,vmax = getVarLims(var,vLimLevs,mirror=True,excldFrame=True)
+                
+        bounds = np.linspace(vmin,vmax,(np.abs(vmin)+np.abs(vmax)+1)*5)
+        norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
         
         
     elif pltFlag == 'u':
         # cmap = pyart.graph.cm.GrMg16
-        cmap = 'RdBu_r'
+        cmap = plt.get_cmap('RdBu_r')
         if strmRel:
-            cmapLbl = 'Storm-Relative U Wind Component $(m s^{-1})$'
+            cmapLbl = 'Storm-Relative U Wind Component $(m\ s^{-1})$'
         else:
-            cmapLbl = 'U Wind Component $(m s^{-1})$'
+            cmapLbl = 'U Wind Component $(m\ s^{-1})$'
         
         if vLim:
             vmin = vLim[0]
@@ -281,14 +290,16 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
             elif vLimMthd is 'tightEM':
                 vmin,vmax = getVarLims(var,vLimLevs,mirror=True,excldFrame=True)
         
+        bounds = np.linspace(vmin,vmax,(np.abs(vmin)+np.abs(vmax)+1))
+        norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
         
     elif pltFlag == 'v':
         # cmap = pyart.graph.cm.GrMg16
-        cmap = 'RdBu_r'
+        cmap = plt.get_cmap('RdBu_r')
         if strmRel:
-            cmapLbl = 'Storm-Relative V Wind Component $(m s^{-1})$'
+            cmapLbl = 'Storm-Relative V Wind Component $(m\ s^{-1})$'
         else:
-            cmapLbl = 'V Wind Component $(m s^{-1})$'
+            cmapLbl = 'V Wind Component $(m\ s^{-1})$'
         
         if vLim:
             vmin = vLim[0]
@@ -306,6 +317,8 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
             elif vLimMthd is 'tightEM':
                 vmin,vmax = getVarLims(var,vLimLevs,mirror=True,excldFrame=True)
         
+        bounds = np.linspace(vmin,vmax,(np.abs(vmin)+np.abs(vmax)+1))
+        norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
         
     elif pltFlag == 'vort':
         cmap = pyart.graph.cm.GrMg16
@@ -327,10 +340,14 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
             elif vLimMthd is 'tightEM':
                 vmin,vmax = getVarLims(var,vLimLevs,mirror=True,excldFrame=True)
                 
+        bounds = np.linspace(vmin,vmax,(np.abs(vmin)+np.abs(vmax)+1))
+        norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
+                
     elif pltFlag == 'wind':
         # cmap = pyart.graph.cm.GrMg16
-        cmap = 'gist_rainbow_r'
-        cmapLbl = 'Wind Speed $(s^{-1})$'
+        # cmap = 'gist_rainbow_r'
+        cmap = pyart.graph.cm_colorblind.HomeyerRainbow
+        cmapLbl = 'Wind Speed $(m\ s^{-1})$'
         
         if vLim:
             vmin = vLim[0]
@@ -348,6 +365,8 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
             elif vLimMthd is 'tightEM':
                 vmin,vmax = getVarLims(pltVar,vLimLevs,mirror=True,excldFrame=True)
         
+        bounds = np.linspace(vmin,vmax,(np.abs(vmin)+np.abs(vmax)+1))
+        norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
         
     else:
         raise ValueError('Plotting flag does not match known options')
@@ -356,9 +375,12 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
     
     if crds == 'map':
         fig,ax,grd,proj = initMapPlot(x,y,figsize=figsize,zoom=zoom,mapBnds=mapBnds,NB=NB)
-        plt.pcolormesh(x,y,var[pltLevIx,:,:],cmap=cmap,vmin=vmin,vmax=vmax,transform=proj)
+        plt.pcolormesh(x,y,var[pltLevIx,:,:],cmap=cmap,norm=norm,vmin=vmin,vmax=vmax,transform=proj)
         if not NB:
-            plt.colorbar(fraction=0.04,pad=0.03,aspect=20,label=cmapLbl)
+            #plt.colorbar(fraction=0.04,pad=0.03,aspect=20,label=cmapLbl)
+            cb = plt.colorbar(shrink=0.7, pad = 0.01, aspect=25)
+            cb.set_label(cmapLbl,size=15)
+            cb.ax.tick_params(labelsize=14)
             plt.xlabel('Longitude ($^{\circ}$)')
             plt.ylabel('Latitude ($^{\circ}$)')
             plt.title(titleStr)
@@ -366,9 +388,11 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
         
     elif crds == 'xy':
         fig,ax = initPlot(figsize=figsize,zoom=zoom,xlim=xlim,ylim=ylim)
-        plt.pcolormesh(x,y,var[pltLevIx,:,:],cmap=cmap,vmin=vmin,vmax=vmax)
+        plt.pcolormesh(x,y,var[pltLevIx,:,:],cmap=cmap,norm=norm,vmin=vmin,vmax=vmax)
         ax.grid(which='both',linewidth=0.5,linestyle='--',color='gray',alpha=0.5)
-        plt.colorbar(fraction=0.04,pad=0.03,aspect=20,label=cmapLbl)
+        cb = plt.colorbar(shrink=0.7, pad = 0.01, aspect=25)
+        cb.set_label(cmapLbl,size=15)
+        cb.ax.tick_params(labelsize=14)
         plt.xlabel('Distance from Origin (km)')
         plt.ylabel('Distance from Origin (km)')
         plt.title(titleStr)
@@ -385,7 +409,7 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
         
         
         
-def plotVec(x,y,quivU,quivV,crds,proj=None,quivKeySpd=20,quivKeyUnits='m/s',zoom=False,
+def plotVec(x,y,quivU,quivV,crds,proj=None,quivKeySpd=40,quivKeyUnits='m/s',zoom=False,
             quivKeyX=0.92,quivKeyY=1.05,**kwargs):
             
     """
@@ -425,7 +449,7 @@ def plotVec(x,y,quivU,quivV,crds,proj=None,quivKeySpd=20,quivKeyUnits='m/s',zoom
         quivKey = plt.quiverkey(quiv, quivKeyX, quivKeyY, quivKeySpd, 
                                 repr(quivKeySpd) + ' ' + quivKeyUnits, labelpos='S')
     elif crds == 'map':
-        quiv = plt.quiver(x,y,quivU,quivV,scale=60,scale_units='inches',transform=proj,**kwargs)
+        quiv = plt.quiver(x,y,quivU,quivV,scale=200,scale_units='inches',transform=proj,**kwargs)
         quivKey = plt.quiverkey(quiv, quivKeyX, quivKeyY, quivKeySpd, 
                                 repr(quivKeySpd) + ' ' + quivKeyUnits, labelpos='S')
     
@@ -438,7 +462,7 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
                    xsAngl=None,xsRes=1.0,leafSz=1,xCrd='lat',figsize=(10,5),vecPlt=False,
                    vLimMthd='default',vLimLevs='all',vLim=None,runId='',dT=None,strmRel=False):
     """
-    This function contours a given variable at some level.
+    This function contours a given variable within a cross section.
 
     Parameters
     ----------
@@ -522,7 +546,7 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
     
     
     if pltFlag == 'dbz':
-        cmap = pyart.graph.cm.NWSRef
+        cmap = pyart.graph.cm_colorblind.HomeyerRainbow
         cmapLbl = 'Reflectivity $(dBZ)$'
         
         if vLim:
@@ -530,19 +554,21 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
             vmax = vLim[1]
         else:
             if vLimMthd is 'default':
-                vmin = -8
-                vmax = 72
+                vmin = -4
+                vmax = 60
             elif vLimMthd is 'tight':
                 vmin,vmax = getVarLims(pltVar,vLimLevs)
             elif vLimMthd is 'tightE':
                 vmin,vmax = getVarLims(pltVar,vLimLevs,excldFrame=True)
             # Not including mirrored options as likely not used for reflectivity
+        bounds = np.linspace(vmin,vmax,(np.abs(vmin)+np.abs(vmax)+1))
+        norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
         
         
     elif pltFlag == 'w':
         # cmap = pyart.graph.cm.GrMg16
-        cmap = 'RdBu_r'
-        cmapLbl = 'Vertical Velocity $(m s^{-1})$'
+        cmap = plt.get_cmap('RdBu_r')
+        cmapLbl = 'Vertical Velocity $(m\ s^{-1})$'
         
         if vLim:
             vmin = vLim[0]
@@ -560,14 +586,16 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
             elif vLimMthd is 'tightEM':
                 vmin,vmax = getVarLims(pltVar,vLimLevs,mirror=True,excldFrame=True)
         
+        bounds = np.linspace(vmin,vmax,(np.abs(vmin)+np.abs(vmax)+1)*5)
+        norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
         
     elif pltFlag == 'u':
         # cmap = pyart.graph.cm.GrMg16
-        cmap = 'RdBu_r'
+        cmap = plt.get_cmap('RdBu_r')
         if strmRel:
-            cmapLbl = 'XS $\parallel$ Storm-Relative Wind Component $(m s^{-1})$'
+            cmapLbl = 'XS $\parallel$ Storm-Relative Wind Component $(m\ s^{-1})$'
         else:
-            cmapLbl = 'XS $\parallel$ Wind Component $(m s^{-1})$'
+            cmapLbl = 'XS $\parallel$ Wind Component $(m\ s^{-1})$'
         
         if vLim:
             vmin = vLim[0]
@@ -585,14 +613,16 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
             elif vLimMthd is 'tightEM':
                 vmin,vmax = getVarLims(pltVar,vLimLevs,mirror=True,excldFrame=True)
         
+        bounds = np.linspace(vmin,vmax,(np.abs(vmin)+np.abs(vmax)+1))
+        norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
         
     elif pltFlag == 'v':
         # cmap = pyart.graph.cm.GrMg16
-        cmap = 'RdBu_r'
+        cmap = plt.get_cmap('RdBu_r')
         if strmRel:
-            cmapLbl = 'XS $\perp$ Storm-Relative Wind Component $(m s^{-1})$'
+            cmapLbl = 'XS $\perp$ Storm-Relative Wind Component $(m\ s^{-1})$'
         else:
-            cmapLbl = 'XS $\perp$ Wind Component $(m s^{-1})$'
+            cmapLbl = 'XS $\perp$ Wind Component $(m\ s^{-1})$'
         
         if vLim:
             vmin = vLim[0]
@@ -610,10 +640,12 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
             elif vLimMthd is 'tightEM':
                 vmin,vmax = getVarLims(pltVar,vLimLevs,mirror=True,excldFrame=True)
         
+        bounds = np.linspace(vmin,vmax,(np.abs(vmin)+np.abs(vmax)+1))
+        norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
         
     elif pltFlag == 'vort':
         # cmap = pyart.graph.cm.GrMg16
-        cmap = 'RdBu_r'
+        cmap = plt.get_cmap('RdBu_r')
         cmapLbl = 'Vertical Vorticity $(s^{-1})$'
         
         if vLim:
@@ -632,10 +664,14 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
             elif vLimMthd is 'tightEM':
                 vmin,vmax = getVarLims(pltVar,vLimLevs,mirror=True,excldFrame=True)
                 
+        bounds = np.linspace(vmin,vmax,(np.abs(vmin)+np.abs(vmax)+1))
+        norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
+                
     elif pltFlag == 'wind':
         # cmap = pyart.graph.cm.GrMg16
-        cmap = 'gist_rainbow_r'
-        cmapLbl = 'Wind Speed $(s^{-1})$'
+        # cmap = 'gist_rainbow_r'
+        cmap = pyart.graph.cm_colorblind.HomeyerRainbow
+        cmapLbl = 'Wind Speed $(m\ s^{-1})$'
         
         if vLim:
             vmin = vLim[0]
@@ -652,6 +688,9 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
                 vmin,vmax = getVarLims(pltVar,vLimLevs,excldFrame=True)
             elif vLimMthd is 'tightEM':
                 vmin,vmax = getVarLims(pltVar,vLimLevs,mirror=True,excldFrame=True)
+                
+        bounds = np.linspace(vmin,vmax,(np.abs(vmin)+np.abs(vmax)+1))
+        norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
         
         
     else:
@@ -727,9 +766,11 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
         xLab = 'Longitude ($^{\circ}$)'
     
     fig,ax = initPlot(figsize=figsize)
-    plt.pcolormesh(x,alt1d,xsPltVar,cmap=cmap,vmin=vmin,vmax=vmax)
+    plt.pcolormesh(x,alt1d,xsPltVar,cmap=cmap,norm=norm,vmin=vmin,vmax=vmax)
     ax.grid(which='both',linewidth=0.5,linestyle='--',color='gray',alpha=0.5)
-    plt.colorbar(fraction=0.04,pad=0.03,aspect=20,label=cmapLbl)
+    cb = plt.colorbar(shrink=0.7, pad = 0.01, aspect=25)
+    cb.set_label(cmapLbl,size=15)
+    cb.ax.tick_params(labelsize=14)
     plt.xlabel(xLab)
     plt.ylabel('Altitude (km AGL)')
     plt.title(titleStr)
