@@ -198,7 +198,11 @@ def planContour(pltVar,pltVarLbl,crds):
         
         else:
             # fig.tight_layout()
-            saveStr = '{}{}{}_{}_{}_{:.1f}km.{}'.format(savePath,dtSave,runIdSv,'xy',pltVarLbl,lev,fType)
+            if strmRel:
+                saveStr = '{}{}{}_{}_{}-SR_{:.1f}km.{}'.format(savePath,dtSave,runIdSv,'xy',pltVarLbl,lev,fType)
+            else:
+                saveStr = '{}{}{}_{}_{}_{:.1f}km.{}'.format(savePath,dtSave,runIdSv,'xy',pltVarLbl,lev,fType)
+            
             fig.savefig(saveStr,bbox_inches='tight')
 
 
@@ -431,13 +435,15 @@ if plotPlanViews:
 if plotXScts:
 
     if crds == 'map':
-        print('\tNow plotting cross-section between ({:.2f},{:.2f}) and ({:.2f},{:.2f}) ({} of {})...'.format(xsStrtTmp[0],xsStrtTmp[1],
-                                                                                                              xsEndTmp[0],xsEndTmp[1],
-                                                                                                              ix+1,len(xsStrt_map)))
+        
         for ix in range(0,len(xsStrt_map)):
 
             xsStrtTmp = xsStrt_map[ix]
             xsEndTmp = xsEnd_map[ix]
+            
+            print('\tNow plotting cross-section between ({:.2f},{:.2f}) and ({:.2f},{:.2f}) ({} of {})...'.format(xsStrtTmp[0],xsStrtTmp[1],
+                                                                                                              xsEndTmp[0],xsEndTmp[1],
+                                                                                                              ix+1,len(xsStrt_map)))
         
             
 
@@ -455,13 +461,15 @@ if plotXScts:
                 xsContour(wndSpd,'wind',xsStrtTmp,xsEndTmp,ix,crds)
                 
     elif crds == 'xy':
-        print('\tNow plotting cross-section between ({},{}) and ({},{}) ({} of {})...'.format(xsStrtTmp[0],xsStrtTmp[1],xsEndTmp[0],
-                                                                                              xsEndTmp[1],ix+1,len(xsStrt)))
+        
                                                                                               
         for ix in range(0,len(xsStrt)):
 
             xsStrtTmp = xsStrt[ix]
             xsEndTmp = xsEnd[ix]
+            
+            print('\tNow plotting cross-section between ({},{}) and ({},{}) ({} of {})...'.format(xsStrtTmp[0],xsStrtTmp[1],xsEndTmp[0],
+                                                                                              xsEndTmp[1],ix+1,len(xsStrt)))
         
             
 
