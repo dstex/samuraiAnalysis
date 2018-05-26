@@ -14,6 +14,7 @@ Common plotting routines for SAMURAI data.
 """
 
 import pyart
+import cmocean
 import warnings
 import matplotlib as mpl
 # mpl.use('PDF')
@@ -214,7 +215,8 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
         
     elif pltFlag == 'w':
         # cmap = pyart.graph.cm.GrMg16
-        cmap = plt.get_cmap('RdBu_r')
+        # cmap = plt.get_cmap('RdBu_r')
+        cmap = cmocean.cm.delta
         cmapLbl = 'Vertical Velocity $(m\ s^{-1})$'
         
         if vLim:
@@ -222,8 +224,8 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
             vmax = vLim[1]
         else:
             if vLimMthd is 'default':
-                vmin = -7
-                vmax = 7
+                vmin = -15
+                vmax = 15
             elif vLimMthd is 'tight':
                 vmin,vmax = getVarLims(var,vLimLevs)
             elif vLimMthd is 'tightM':
@@ -240,7 +242,8 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
         
     elif pltFlag == 'u':
         # cmap = pyart.graph.cm.GrMg16
-        cmap = plt.get_cmap('RdBu_r')
+        # cmap = plt.get_cmap('RdBu_r')
+        cmap = cmocean.cm.delta
         if strmRel:
             cmapLbl = 'Storm-Relative U Wind Component $(m\ s^{-1})$'
         else:
@@ -268,7 +271,8 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
         
     elif pltFlag == 'v':
         # cmap = pyart.graph.cm.GrMg16
-        cmap = plt.get_cmap('RdBu_r')
+        # cmap = plt.get_cmap('RdBu_r')
+        cmap = cmocean.cm.delta
         if strmRel:
             cmapLbl = 'Storm-Relative V Wind Component $(m\ s^{-1})$'
         else:
@@ -437,15 +441,15 @@ def plotVec(x,y,quivU,quivV,crds,proj=None,quivKeySpd=40,quivKeyUnits='m/s',zoom
     """
             
     if crds == 'xs':
-        quiv = plt.quiver(x,y,quivU,quivV,scale=75,scale_units='inches',**kwargs)
+        quiv = plt.quiver(x,y,quivU,quivV,scale=75,scale_units='inches',color='#3e3e3e',**kwargs)
         quivKey = plt.quiverkey(quiv, quivKeyX, quivKeyY, quivKeySpd, 
                                 repr(quivKeySpd) + ' ' + quivKeyUnits, labelpos='S')
     elif crds == 'xy':
-        quiv = plt.quiver(x,y,quivU,quivV,scale=60,scale_units='inches',**kwargs)
+        quiv = plt.quiver(x,y,quivU,quivV,scale=200,scale_units='inches',color='#3e3e3e',**kwargs)
         quivKey = plt.quiverkey(quiv, quivKeyX, quivKeyY, quivKeySpd, 
                                 repr(quivKeySpd) + ' ' + quivKeyUnits, labelpos='S')
     elif crds == 'map':
-        quiv = plt.quiver(x,y,quivU,quivV,scale=200,scale_units='inches',transform=proj,**kwargs)
+        quiv = plt.quiver(x,y,quivU,quivV,scale=200,scale_units='inches',transform=proj,color='#3e3e3e',**kwargs)
         quivKey = plt.quiverkey(quiv, quivKeyX, quivKeyY, quivKeySpd, 
                                 repr(quivKeySpd) + ' ' + quivKeyUnits, labelpos='S')
     
@@ -478,20 +482,16 @@ def plotBarbs(x,y,barbU,barbV,crds,length=6.5,proj=None,**kwargs):
     **kwargs : optional
         Keyword arguments accepted by PolyCollection are valid.
         
-    Returns
-    -------
-    brbs: handle
-        barbs handle used for further customizing wind barbs.
     """
             
     if crds == 'xs':
-        brbs = plt.barbs(x,y,barbU,barbV,length=length,**kwargs)
+        brbs = plt.barbs(x,y,barbU,barbV,length=length,barbcolor='#3e3e3e',**kwargs)
         
     elif crds == 'xy':
-        brbs = plt.barbs(x,y,barbU,barbV,length=length,**kwargs)
+        brbs = plt.barbs(x,y,barbU,barbV,length=length,barbcolor='#3e3e3e',**kwargs)
         
     elif crds == 'map':
-        brbs = plt.barbs(x,y,barbU,barbV,transform=proj,length=length,**kwargs)
+        brbs = plt.barbs(x,y,barbU,barbV,transform=proj,length=length,color='#3e3e3e',**kwargs)
     
     else:
         raise ValueError('Invalid plot coordinate type chosen')
@@ -923,7 +923,8 @@ def plotXS(pltVar3d,x1d,y1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
         
     elif pltFlag == 'w':
         # cmap = pyart.graph.cm.GrMg16
-        cmap = plt.get_cmap('RdBu_r')
+        # cmap = plt.get_cmap('RdBu_r')
+        cmap = cmocean.cm.delta
         cmapLbl = 'Vertical Velocity $(m\ s^{-1})$'
         
         if vLim:
@@ -931,8 +932,8 @@ def plotXS(pltVar3d,x1d,y1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
             vmax = vLim[1]
         else:
             if vLimMthd is 'default':
-                vmin = -4
-                vmax = 4
+                vmin = -15
+                vmax = 15
             elif vLimMthd is 'tight':
                 vmin,vmax = getVarLims(pltVar,vLimLevs)
             elif vLimMthd is 'tightM':
@@ -948,7 +949,8 @@ def plotXS(pltVar3d,x1d,y1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
         
     elif pltFlag == 'u':
         # cmap = pyart.graph.cm.GrMg16
-        cmap = plt.get_cmap('RdBu_r')
+        # cmap = plt.get_cmap('RdBu_r')
+        cmap = cmocean.cm.delta
         if strmRel:
             cmapLbl = 'XS $\parallel$ Storm-Relative Wind Component $(m\ s^{-1})$'
         else:
@@ -959,8 +961,8 @@ def plotXS(pltVar3d,x1d,y1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
             vmax = vLim[1]
         else:
             if vLimMthd is 'default':
-                vmin = -30
-                vmax = 30
+                vmin = -50
+                vmax = 50
             elif vLimMthd is 'tight':
                 vmin,vmax = getVarLims(pltVar,vLimLevs)
             elif vLimMthd is 'tightM':
@@ -976,7 +978,8 @@ def plotXS(pltVar3d,x1d,y1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
         
     elif pltFlag == 'v':
         # cmap = pyart.graph.cm.GrMg16
-        cmap = plt.get_cmap('RdBu_r')
+        # cmap = plt.get_cmap('RdBu_r')
+        cmap = cmocean.cm.delta
         if strmRel:
             cmapLbl = 'XS $\perp$ Storm-Relative Wind Component $(m\ s^{-1})$'
         else:
@@ -987,8 +990,8 @@ def plotXS(pltVar3d,x1d,y1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
             vmax = vLim[1]
         else:
             if vLimMthd is 'default':
-                vmin = -30
-                vmax = 30
+                vmin = -50
+                vmax = 50
             elif vLimMthd is 'tight':
                 vmin,vmax = getVarLims(pltVar,vLimLevs)
             elif vLimMthd is 'tightM':
@@ -1127,7 +1130,7 @@ def plotXS(pltVar3d,x1d,y1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
     if doPCM:
         plt.pcolormesh(xsX,alt1d,xsPltVar,cmap=cmap,norm=norm,vmin=vmin,vmax=vmax)
     else:
-        plt.contourf(xsX,alt1d,xsPltVar,bounds,cmap=cmap,norm=norm)
+        plt.contourf(xsX,alt1d,xsPltVar,bounds,cmap=cmap,norm=norm,extend='both')
     ax.grid(which='major',linewidth=0.5,linestyle='--',color='gray',alpha=0.5)
     ax.tick_params(labelsize=14)
     ax.xaxis.set_major_locator(MultipleLocator(20*xsRes))
