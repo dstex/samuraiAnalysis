@@ -1,30 +1,29 @@
-flight: '20150706'
+flight: '20150620'
 samPrefix: /Users/danstechman/GoogleDrive/PECAN-Data/samurai/
 
-maskCombo: false
-outPrefix_master: 0322_SR1-XP-D8-FSD
-outPrefix_sub1: None
+maskCombo: true
+outPrefix_master: s7_fsdabr
+outPrefix_sub1:   s7_only
+outPrefix_sub2:   s7sub_fsd_only
+outPrefix_sub3:   s7sub_abr_only
 
-dirPost: '_SR_wXS'
-
-strmRel: true
-strmU: 7.0
-strmV: -3.92
+crds: 'xy'
 
 fType: png
 dtDir: true
-saveKML: false
+dirPost: '_example_dbz_every1km'
 
+strmRel: false
+strmU: 30.03
+strmV: -4.76
 
-### Plan view plot settings ###
-plotPlanViews: true
-noBorder: false
-unifyBnds: false
-unifiedMapBnds:
-- -99.3
-- -97.1
-- 43.1
-- 45.0
+###############################################
+########    Plan view plot settings    ########
+###############################################
+plotPlanViews:  true
+pltVec:         false
+pltBarb:        true
+
 pltLevs:
 - -2
 #- -1
@@ -33,54 +32,79 @@ pltLevs:
 #- 3
 #- 4.5
 
-pltDBZ:    false
+
+pltDBZ:    true
 pltU:      false
 pltV:      false
-pltW:      true
+pltW:      false
 pltVort:   false
 pltWndSpd: false
 
-pltVec: true
 plotXSloc: true
+
+
+#### Settings only applicable when crds = 'map' ####
+####################################################
+pltFT: true
+flPrefix: /Users/danstechman/GoogleDrive/PECAN-Data/FlightLevelData/Processed/
+flSs: 20150620-074547
+flEs: 20150620-075822
+
+pltGRlocs: true
+latGR:
+- 43.583
+- 45.451
+lonGR:
+- -96.724
+- -98.408
+grTxt:
+- FSD
+- ABR
+
+saveKML:  false
+noBorder: false
+
+unifyBnds: false
+unifiedMapBnds:
+- -99.3
+- -97.1
+- 43.1
+- 45.0
 
 pltRAP: false
 gribFile: /Users/danstechman/GoogleDrive/PECAN-Data/model/RAP/20150706/rap_130_20150706_0400_000.nc
 
-pltFT: false
-flPrefix: /Users/danstechman/GoogleDrive/PECAN-Data/FlightLevelData/Processed/
-flSs: 20150706-023432
-flEs: 20150706-024047
-pltGRlocs: true
-latGR:
-- 43.5243
-- 43.3284
-- 43.1597
-- 43.583
-lonGR:
-- -98.0047
-- -97.3252
-- -97.6374
-- -96.724
-grTxt:
-- SR1
-- XP
-- D8
-- FSD
 
 
 
-### Cross-section plot settings ###
-plotXScts: true
-pltVecXS: true
+###################################################
+########    Cross-section plot settings    ########
+###################################################
+plotXScts:  true
+pltVecXS:   false
+pltBarbXS:  true
 
-pltDBZx: false
-pltUx: false
-pltVx: false
-pltWx: true
-pltVortX: false
+pltDBZx:    true
+pltUx:      false
+pltVx:      false
+pltWx:      false
+pltVortX:   false
 pltWndSpdX: false
 
 
+xsStrt:
+- !!python/tuple
+  - -50
+  - 60
+xsEnd:
+- !!python/tuple
+  - 90
+  - -20
+
+
+
+#### Settings only applicable when crds = 'map' ####
+####################################################
 avgXS: false
 # Number of adjacent points to include in average to either
 # side of given XS line (only if avgXS is True)
@@ -97,14 +121,14 @@ multXSinitLonStrt: -98.576
 multXSinitLonEnd: -98.051
 
 
-xsStrt:
+xsStrt_map:
 - !!python/tuple
   - 44.265
   - -98.417
 - !!python/tuple
   - 44.265
   - -98.227
-xsEnd:
+xsEnd_map:
 - !!python/tuple
   - 42.563
   - -98.017

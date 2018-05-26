@@ -65,42 +65,35 @@ def samImport_masked(samFile_master,samFile_sub1,samFile_sub2=None,samFile_sub3=
     v_master = samData_master.V.to_masked_array().squeeze()
     w_master = samData_master.W.to_masked_array().squeeze()
     vort_master = samData_master.VORT.to_masked_array().squeeze()
-    
-    master_mask = ma.getmask(u_master)
-    
-    
+
     samData_sub1 = xr.open_dataset(samFile_sub1)
     sub1_mask = ma.getmask(samData_sub1.U.to_masked_array().squeeze())
-
-    maskCount = np.add(master_mask.astype(int),sub1_mask.astype(int))
-
     
-    if samFile_sub2:
+    spiralMask = sub1_mask
+
+    # Currently assumes that sub1 is a PDD (or other dual-Doppler) analysis, sufficient for
+    # valid winds on its own. sub2 and sub3, at least for now, are often 88Ds, and should only
+    # contribute to the final wind field (where not already defined by sub1) if they are 
+    # overlapping each other
+    if samFile_sub2 and samFile_sub3:
         samData_sub2 = xr.open_dataset(samFile_sub2)
+        samData_sub3 = xr.open_dataset(samFile_sub3)
         
         sub2_mask = ma.getmask(samData_sub2.U.to_masked_array().squeeze())
-        maskCount = np.add(maskCount,sub2_mask.astype(int))
+        sub3_mask = ma.getmask(samData_sub3.U.to_masked_array().squeeze())
         
-        if samFile_sub3:
-            samData_sub3 = xr.open_dataset(samFile_sub3)
-            
-            sub3_mask = ma.getmask(samData_sub3.U.to_masked_array().squeeze())
-            maskCount = np.add(maskCount,sub3_mask.astype(int))
+        mask88d = np.logical_or(sub2_mask,sub3_mask)
     
-    
-    finalMask = (np.zeros_like(master_mask)).ravel()
-    for ix, maskC in enumerate(maskCount.ravel()):
-        if maskC > 1:
-            finalMask[ix] = True
-    
-    finalMask_reshaped = finalMask.reshape(master_mask.shape)
+        comboMask = np.logical_and(spiralMask,mask88d)
+    else:
+        comboMask = spiralMask
     
     # Apply new combined mask to kinematic variables before saving into dictionary
     
-    u_final = ma.masked_array(u_master,finalMask_reshaped)
-    v_final = ma.masked_array(v_master,finalMask_reshaped)
-    w_final = ma.masked_array(w_master,finalMask_reshaped)
-    vort_final = ma.masked_array(vort_master,finalMask_reshaped)
+    u_final = ma.masked_array(u_master,comboMask)
+    v_final = ma.masked_array(v_master,comboMask)
+    w_final = ma.masked_array(w_master,comboMask)
+    vort_final = ma.masked_array(vort_master,comboMask)
     
     
     samDict = {'x': x, 'y': y, 'lon': lon, 'lat': lat, 'alt': alt, 

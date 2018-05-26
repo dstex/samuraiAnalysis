@@ -66,58 +66,41 @@ def samImport_masked_deprecated(samFile_master,samFile_sub1,samFile_sub2=None,sa
     w_master = samData_master.W.to_masked_array().squeeze()
     vort_master = samData_master.VORT.to_masked_array().squeeze()
     
-    u_master_mask = ma.getmask(u_master)
-    v_master_mask = ma.getmask(v_master)
-    w_master_mask = ma.getmask(w_master)
-    vort_master_mask = ma.getmask(vort_master)
+    master_mask = ma.getmask(u_master)
     
     
     samData_sub1 = xr.open_dataset(samFile_sub1)
-    
-    u_sub1_mask = ma.getmask(samData_sub1.U.to_masked_array().squeeze())
-    v_sub1_mask = ma.getmask(samData_sub1.V.to_masked_array().squeeze())
-    w_sub1_mask = ma.getmask(samData_sub1.W.to_masked_array().squeeze())
-    vort_sub1_mask = ma.getmask(samData_sub1.VORT.to_masked_array().squeeze())
-    
-    u_comboMask = np.logical_or(u_master_mask,u_sub1_mask)
-    v_comboMask = np.logical_or(v_master_mask,v_sub1_mask)
-    w_comboMask = np.logical_or(w_master_mask,w_sub1_mask)
-    vort_comboMask = np.logical_or(vort_master_mask,vort_sub1_mask)
+    sub1_mask = ma.getmask(samData_sub1.U.to_masked_array().squeeze())
+
+    maskCount = np.add(master_mask.astype(int),sub1_mask.astype(int))
+
     
     if samFile_sub2:
         samData_sub2 = xr.open_dataset(samFile_sub2)
         
-        u_sub2_mask = ma.getmask(samData_sub2.U.to_masked_array().squeeze())
-        v_sub2_mask = ma.getmask(samData_sub2.V.to_masked_array().squeeze())
-        w_sub2_mask = ma.getmask(samData_sub2.W.to_masked_array().squeeze())
-        vort_sub2_mask = ma.getmask(samData_sub2.VORT.to_masked_array().squeeze())
-        
-        u_comboMask = np.logical_or(u_comboMask,u_sub2_mask)
-        v_comboMask = np.logical_or(v_comboMask,v_sub2_mask)
-        w_comboMask = np.logical_or(w_comboMask,w_sub2_mask)
-        vort_comboMask = np.logical_or(vort_comboMask,vort_sub2_mask)
+        sub2_mask = ma.getmask(samData_sub2.U.to_masked_array().squeeze())
+        maskCount = np.add(maskCount,sub2_mask.astype(int))
         
         if samFile_sub3:
             samData_sub3 = xr.open_dataset(samFile_sub3)
             
-            u_sub3_mask = ma.getmask(samData_sub3.U.to_masked_array().squeeze())
-            v_sub3_mask = ma.getmask(samData_sub3.V.to_masked_array().squeeze())
-            w_sub3_mask = ma.getmask(samData_sub3.W.to_masked_array().squeeze())
-            vort_sub3_mask = ma.getmask(samData_sub3.VORT.to_masked_array().squeeze())
-            
-            u_comboMask = np.logical_or(u_comboMask,u_sub3_mask)
-            v_comboMask = np.logical_or(v_comboMask,v_sub3_mask)
-            w_comboMask = np.logical_or(w_comboMask,w_sub3_mask)
-            vort_comboMask = np.logical_or(vort_comboMask,vort_sub3_mask)
+            sub3_mask = ma.getmask(samData_sub3.U.to_masked_array().squeeze())
+            maskCount = np.add(maskCount,sub3_mask.astype(int))
     
     
+    finalMask = (np.zeros_like(master_mask)).ravel()
+    for ix, maskC in enumerate(maskCount.ravel()):
+        if maskC > 2:
+            finalMask[ix] = True
+    
+    finalMask_reshaped = finalMask.reshape(master_mask.shape)
     
     # Apply new combined mask to kinematic variables before saving into dictionary
     
-    u_final = ma.masked_array(u_master,u_comboMask)
-    v_final = ma.masked_array(v_master,v_comboMask)
-    w_final = ma.masked_array(w_master,w_comboMask)
-    vort_final = ma.masked_array(vort_master,vort_comboMask)
+    u_final = ma.masked_array(u_master,finalMask_reshaped)
+    v_final = ma.masked_array(v_master,finalMask_reshaped)
+    w_final = ma.masked_array(w_master,finalMask_reshaped)
+    vort_final = ma.masked_array(vort_master,finalMask_reshaped)
     
     
     samDict = {'x': x, 'y': y, 'lon': lon, 'lat': lat, 'alt': alt, 

@@ -5,7 +5,6 @@ samPlt
 Common plotting routines for SAMURAI data.
 
     initMapPlot
-    initPlot
     plotContour
     plotVec
     plotXS
@@ -25,6 +24,7 @@ from datetime import datetime as dt
 import cartopy.crs as ccrs
 import cartopy.feature as cf
 from scipy.spatial import cKDTree
+from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 
 
 from samuraiAnalysis import getVarLims
@@ -104,37 +104,6 @@ def initMapPlot(lon,lat,figsize=(10,10),zoom=False,mapBnds=None,NB=False):
     
     return fig,ax,grd,proj
 
-
-def initPlot(figsize=(10,10),zoom=False,xlim=None,ylim=None):
-    """
-    Initialize an X-Y plot for SAMURAI data and 
-    return the figure and axes handles for further customization.
-
-    Parameters
-    ----------
-    figsize : tuple, optional
-        Tuple indicating the size of the figure in inches (width, height).
-    zoom : bool, optional
-        False [default] to use the x,y bounds for the figure extent. When True,
-        xlim and/or ylim lists will be used to specify the figure extent.
-    xlim,ylim : tuples, optional
-        Tuples indicating the (min,max) axis extents. Only used if zoom is True.
-
-    Returns
-    -------
-    fig,ax : handles
-        Figure and axes handles used for further customizing the plot.
-    """
-    
-    fig = plt.figure(figsize=figsize)
-    
-    ax = fig.add_subplot(111)
-    
-    if zoom:
-        ax.set_xlim(xlim)
-        ax.set_ylim(ylim)
-    
-    return fig,ax
 
 
 def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
@@ -237,7 +206,9 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
                 vmin,vmax = getVarLims(var,vLimLevs,excldFrame=True)
             # Not including mirrored options as likely not used for reflectivity
             
-        bounds = np.linspace(vmin,vmax,(np.abs(vmin)+np.abs(vmax)+1))
+        # steps = np.abs(vmin)+np.abs(vmax)+1
+        steps = 33
+        bounds = np.linspace(vmin,vmax,steps)
         norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
         
         
@@ -262,7 +233,8 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
             elif vLimMthd is 'tightEM':
                 vmin,vmax = getVarLims(var,vLimLevs,mirror=True,excldFrame=True)
                 
-        bounds = np.linspace(vmin,vmax,(np.abs(vmin)+np.abs(vmax)+1)*5)
+        steps = np.abs(vmin)+np.abs(vmax)+1
+        bounds = np.linspace(vmin,vmax,steps*5)
         norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
         
         
@@ -290,7 +262,8 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
             elif vLimMthd is 'tightEM':
                 vmin,vmax = getVarLims(var,vLimLevs,mirror=True,excldFrame=True)
         
-        bounds = np.linspace(vmin,vmax,(np.abs(vmin)+np.abs(vmax)+1))
+        steps = np.abs(vmin)+np.abs(vmax)+1
+        bounds = np.linspace(vmin,vmax,steps)
         norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
         
     elif pltFlag == 'v':
@@ -317,7 +290,8 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
             elif vLimMthd is 'tightEM':
                 vmin,vmax = getVarLims(var,vLimLevs,mirror=True,excldFrame=True)
         
-        bounds = np.linspace(vmin,vmax,(np.abs(vmin)+np.abs(vmax)+1))
+        steps = np.abs(vmin)+np.abs(vmax)+1
+        bounds = np.linspace(vmin,vmax,steps)
         norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
         
     elif pltFlag == 'vort':
@@ -340,7 +314,8 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
             elif vLimMthd is 'tightEM':
                 vmin,vmax = getVarLims(var,vLimLevs,mirror=True,excldFrame=True)
                 
-        bounds = np.linspace(vmin,vmax,(np.abs(vmin)+np.abs(vmax)+1))
+        steps = np.abs(vmin)+np.abs(vmax)+1
+        bounds = np.linspace(vmin,vmax,steps)
         norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
                 
     elif pltFlag == 'wind':
@@ -365,7 +340,8 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
             elif vLimMthd is 'tightEM':
                 vmin,vmax = getVarLims(pltVar,vLimLevs,mirror=True,excldFrame=True)
         
-        bounds = np.linspace(vmin,vmax,(np.abs(vmin)+np.abs(vmax)+1))
+        steps = np.abs(vmin)+np.abs(vmax)+1
+        bounds = np.linspace(vmin,vmax,steps)
         norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
         
     else:
@@ -381,21 +357,36 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
             cb = plt.colorbar(shrink=0.7, pad = 0.01, aspect=25)
             cb.set_label(cmapLbl,size=15)
             cb.ax.tick_params(labelsize=14)
-            plt.xlabel('Longitude ($^{\circ}$)')
-            plt.ylabel('Latitude ($^{\circ}$)')
+            plt.xlabel('Longitude ($^{\circ}$)',size=14)
+            plt.ylabel('Latitude ($^{\circ}$)',size=14)
             plt.title(titleStr)
 
         
     elif crds == 'xy':
-        fig,ax = initPlot(figsize=figsize,zoom=zoom,xlim=xlim,ylim=ylim)
+        if xlim is None:
+            xlim = (np.min(x),np.max(x))
+        if ylim is None:
+            ylim = (np.min(y),np.max(y))
+        
+        fig = plt.figure(figsize=figsize)
+        ax = fig.add_subplot(111)
+        
         plt.pcolormesh(x,y,var[pltLevIx,:,:],cmap=cmap,norm=norm,vmin=vmin,vmax=vmax)
-        ax.grid(which='both',linewidth=0.5,linestyle='--',color='gray',alpha=0.5)
+        ax.set_xlim(xlim)
+        ax.set_ylim(ylim)
+        ax.grid(which='major',linewidth=0.5,linestyle='--',color='gray',alpha=0.7)
+        ax.set_aspect('equal')
+        ax.tick_params(labelsize=14)
+        ax.xaxis.set_major_locator(MultipleLocator(25))
+        ax.yaxis.set_major_locator(MultipleLocator(25))
+        ax.xaxis.set_minor_locator(MultipleLocator(5))
+        ax.yaxis.set_minor_locator(MultipleLocator(5))
         cb = plt.colorbar(shrink=0.7, pad = 0.01, aspect=25)
         cb.set_label(cmapLbl,size=15)
         cb.ax.tick_params(labelsize=14)
-        plt.xlabel('Distance from Origin (km)')
-        plt.ylabel('Distance from Origin (km)')
-        plt.title(titleStr)
+        plt.xlabel('Distance from Origin (km)',size=15)
+        plt.ylabel('Distance from Origin (km)',size=15)
+        plt.title(titleStr,size=18)
         
         
     else:
@@ -405,7 +396,7 @@ def plotContour(var,pltLev,x,y,crds,pltFlag,figsize=(10,10),zoom=False,
     if crds is 'map':
         return fig,ax,grd,proj
     else:
-        return fig,ax,None,None
+        return fig,ax
         
         
         
@@ -438,10 +429,15 @@ def plotVec(x,y,quivU,quivV,crds,proj=None,quivKeySpd=40,quivKeyUnits='m/s',zoom
     **kwargs : optional
         Keyword arguments accepted by the plt.quiver() function are valid.
         
+    Returns
+    -------
+    quiv,quivKey: handles
+        quiver and quiver key handles used for further customizing the plot.
+        
     """
             
     if crds == 'xs':
-        quiv = plt.quiver(x,y,quivU,quivV,scale=45,scale_units='inches',**kwargs)
+        quiv = plt.quiver(x,y,quivU,quivV,scale=75,scale_units='inches',**kwargs)
         quivKey = plt.quiverkey(quiv, quivKeyX, quivKeyY, quivKeySpd, 
                                 repr(quivKeySpd) + ' ' + quivKeyUnits, labelpos='S')
     elif crds == 'xy':
@@ -456,10 +452,54 @@ def plotVec(x,y,quivU,quivV,crds,proj=None,quivKeySpd=40,quivKeyUnits='m/s',zoom
     else:
         raise ValueError('Invalid plot coordinate type chosen')
         
+    return quiv,quivKey
+        
+        
+def plotBarbs(x,y,barbU,barbV,crds,length=6.5,proj=None,**kwargs):
+            
+    """
+    Plot wind barbs.
+    
+    Parameters
+    ----------
+    x,y : arrays
+        Arrays containing either the x/y, lon/lat, or x/z coordinates of the plotted data.
+        Chosen variables should coincide appropriately with crds argument.
+    barbU : array
+        3-D array containing the U-component of the wind.
+    barbV : array
+        3-D array containing the V-component of the wind.
+    crds : {'map', 'xy', 'xs'}
+        Coordinate system to use for plot. 'map' requires x,y arguments be given
+        as lon,lat values. 'xy' requires x,y arguments be x,y values. 'xs' requires
+        x,y arguments be x,z values.
+    length : float, optional
+        Length of wind barbs. Stock default is 7; using 6.5 as default here as it is less crowded.
+    **kwargs : optional
+        Keyword arguments accepted by PolyCollection are valid.
+        
+    Returns
+    -------
+    brbs: handle
+        barbs handle used for further customizing wind barbs.
+    """
+            
+    if crds == 'xs':
+        brbs = plt.barbs(x,y,barbU,barbV,length=length,**kwargs)
+        
+    elif crds == 'xy':
+        brbs = plt.barbs(x,y,barbU,barbV,length=length,**kwargs)
+        
+    elif crds == 'map':
+        brbs = plt.barbs(x,y,barbU,barbV,transform=proj,length=length,**kwargs)
+    
+    else:
+        raise ValueError('Invalid plot coordinate type chosen')
+        
         
 
-def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
-                   xsAngl=None,xsRes=1.0,leafSz=1,xCrd='lat',figsize=(10,5),vecPlt=False,
+def plotXS_mapCrds(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
+                   xsAngl=None,xsRes=1.0,leafSz=1,xCrd='lat',figsize=(10,5),vecPlt=False,barbPlt=False,
                    vLimMthd='default',vLimLevs='all',vLim=None,runId='',dT=None,strmRel=False):
     """
     This function contours a given variable within a cross section.
@@ -498,7 +538,9 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
     figsize : tuple, optional
         Tuple indicating the size of the figure in inches (width, height).
     vecPlt : bool, optional
-        If True, vectors parallel to the cross-section will be plotted (rotated V component and W).
+        If True, vectors parallel to the cross-section will be plotted (rotated U component and W).
+    barbPlt : bool, optional
+        If True, barbs parallel to the cross-section will be plotted (rotated U component and W).
     vLimMthd : {'default', 'tight', 'tightM', 'tightE','tightEM'}, optional
         Variable min/max values for contour plots. If 'default' [default], typical values for given variable
         will be used. If 'tight', rounded max and min values over whole array will be used. If 'tightM', min 
@@ -540,10 +582,6 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
     titleStr = '{}\nVertical Cross Section between ({},{}) & ({},{}) -- {}'.format(dtTitle,xsStrt[0],xsStrt[1],
                                                                                 xsEnd[0],xsEnd[1],runId)
     
-       
-        
-    
-    
     
     if pltFlag == 'dbz':
         cmap = pyart.graph.cm_colorblind.HomeyerRainbow
@@ -561,7 +599,10 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
             elif vLimMthd is 'tightE':
                 vmin,vmax = getVarLims(pltVar,vLimLevs,excldFrame=True)
             # Not including mirrored options as likely not used for reflectivity
-        bounds = np.linspace(vmin,vmax,(np.abs(vmin)+np.abs(vmax)+1))
+        
+        # steps = np.abs(vmin)+np.abs(vmax)+1
+        steps = 33
+        bounds = np.linspace(vmin,vmax,steps)
         norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
         
         
@@ -586,7 +627,8 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
             elif vLimMthd is 'tightEM':
                 vmin,vmax = getVarLims(pltVar,vLimLevs,mirror=True,excldFrame=True)
         
-        bounds = np.linspace(vmin,vmax,(np.abs(vmin)+np.abs(vmax)+1)*5)
+        steps = np.abs(vmin)+np.abs(vmax)+1
+        bounds = np.linspace(vmin,vmax,steps*5)
         norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
         
     elif pltFlag == 'u':
@@ -613,7 +655,8 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
             elif vLimMthd is 'tightEM':
                 vmin,vmax = getVarLims(pltVar,vLimLevs,mirror=True,excldFrame=True)
         
-        bounds = np.linspace(vmin,vmax,(np.abs(vmin)+np.abs(vmax)+1))
+        steps = np.abs(vmin)+np.abs(vmax)+1
+        bounds = np.linspace(vmin,vmax,steps)
         norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
         
     elif pltFlag == 'v':
@@ -640,7 +683,8 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
             elif vLimMthd is 'tightEM':
                 vmin,vmax = getVarLims(pltVar,vLimLevs,mirror=True,excldFrame=True)
         
-        bounds = np.linspace(vmin,vmax,(np.abs(vmin)+np.abs(vmax)+1))
+        steps = np.abs(vmin)+np.abs(vmax)+1
+        bounds = np.linspace(vmin,vmax,steps)
         norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
         
     elif pltFlag == 'vort':
@@ -664,7 +708,8 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
             elif vLimMthd is 'tightEM':
                 vmin,vmax = getVarLims(pltVar,vLimLevs,mirror=True,excldFrame=True)
                 
-        bounds = np.linspace(vmin,vmax,(np.abs(vmin)+np.abs(vmax)+1))
+        steps = np.abs(vmin)+np.abs(vmax)+1
+        bounds = np.linspace(vmin,vmax,steps)
         norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
                 
     elif pltFlag == 'wind':
@@ -689,7 +734,8 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
             elif vLimMthd is 'tightEM':
                 vmin,vmax = getVarLims(pltVar,vLimLevs,mirror=True,excldFrame=True)
                 
-        bounds = np.linspace(vmin,vmax,(np.abs(vmin)+np.abs(vmax)+1))
+        steps = np.abs(vmin)+np.abs(vmax)+1
+        bounds = np.linspace(vmin,vmax,steps)
         norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
         
         
@@ -765,7 +811,9 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
         x = xsCrds[0,:]
         xLab = 'Longitude ($^{\circ}$)'
     
-    fig,ax = initPlot(figsize=figsize)
+    fig = plt.figure(figsize=figsize)
+    ax = fig.add_subplot(111)
+    
     plt.pcolormesh(x,alt1d,xsPltVar,cmap=cmap,norm=norm,vmin=vmin,vmax=vmax)
     ax.grid(which='both',linewidth=0.5,linestyle='--',color='gray',alpha=0.5)
     cb = plt.colorbar(shrink=0.7, pad = 0.01, aspect=25)
@@ -777,8 +825,329 @@ def plotXS(pltVar3d,lon1d,lat1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
 
     if vecPlt:
         plotVec(x[1::3],alt1d,xsUrot[:,1::3],xsW[:,1::3],crds='xs',quivKeyX=0.97,quivKeyY=1.07)
+    if barbPlt:
+        plotBarbs(x[1::4],alt1d[1::2],xsUrot[1::2,1::4],xsW[1::2,1::4],crds='xs')
         
     return fig,ax
+
+
+def plotXS(pltVar3d,x1d,y1d,alt1d,u3d,v3d,w3d,xsStrt,xsEnd,pltFlag,
+           xsRes=1,figsize=(10,5),vecPlt=False,barbPlt=False,xStrd=4,zStrd=2,doPCM=False,
+           vLimMthd='default',vLimLevs='all',vLim=None,runId='',dT=None,strmRel=False):
+    """
+    This function contours a given variable within a cross section.
+
+    Parameters
+    ----------
+    pltVar3d : array 
+        3-D array (ordered as [level,y,x]) containing the SAMURAI data
+        to be plotted. Ideally, this array will be masked.
+    x1d,y1d,alt1d : arrays
+        1-D arrays containing the x/y/alt coordinates of the plotted data.
+    u3d,v3d,w3d : arrays
+        3-D arrays (ordered as [level,y,x]) containing the SAMURAI u-,v-,w- components 
+         of the wind data. Ideally, these arrays will be masked.
+    xsStrt : tuple
+        Tuple indicating the (x, y) in cartesian coordinates of the cross-section start.
+    xsEnd : tuple
+        Tuple indicating the (x, y) in cartesian coordinates of the cross-section end.
+    pltFlag : {'dbz', 'w', 'u', 'v', 'vort'}
+        String specifying what variable parameter set to use. This can be expanded
+        to include additional SAMURAI output variables as needed. This is currently used
+        only because there is no good way to extract the name of the plotted variable
+        as a string (which could then be searched for relevant keywords like 'dbz').
+    xsRes : int, optional
+        Horizontal resolution of the output x/y arrays. Default is 1, which for the default
+        grid spacing in SAMURAI of 1.0 km, this yields one interpolated x/y pair per 1 km. If
+        this were to be changed to 10, for example, there would be a point every 100 meters along
+        the cross-section.
+    figsize : tuple, optional
+        Tuple indicating the size of the figure in inches (width, height).
+    vecPlt : bool, optional
+        If True, vectors parallel to the cross-section will be plotted (rotated U component and W).
+    barbPlt : bool, optional
+        If True, barbs parallel to the cross-section will be plotted (rotated U component and W).
+    doPCM : bool, optional
+        If True, pcolormesh is used. Otherwise, contourf is used (default).
+    vLimMthd : {'default', 'tight', 'tightM', 'tightE','tightEM'}, optional
+        Variable min/max values for contour plots. If 'default' [default], typical values for given variable
+        will be used. If 'tight', rounded max and min values over whole array will be used. If 'tightM', min 
+        and max will be equal and of opposite sign. If 'tightE', bordering 3 data points are excluded from
+        max/min calculation. If 'tightEM', values are mirrored as in 'tightM', with border exclusion as in 
+        'tightE'.
+    vLimLevs : int [single value, list, or array], optional
+        Integer(s) defining which vertical level to consider in the
+        determination of the max and min. Default is 'all' which will use
+        all vertical levels.
+    vLim : tuple of floats, optional
+        Supersedes vLimMthd. Provides max and min contouring bounds. Default is None.
+    runId : string, optional
+        String indicating a specific run of a SAMURAI analysis. This is used in the title of the figure.
+        Defaults to empty string.
+    dT : Timestamp, optional
+        Single value Timestamp specifying the date/time of the plotted data. Must be readable by the
+        python datetime.datetime.strftime function. If None, 'unknownDT' and
+        'Unknown Date/Time' will be used in figure filenames and titles.
+    strmRel : bool, optional
+        If True, label plotted wind variables appropriately.
+    
+    
+
+    Returns
+    -------
+    fig,ax : handles
+        Figure and axes handles used for further customizing the plot.
+    """
+    
+    if pltFlag == 'dbz':
+        cmap = pyart.graph.cm_colorblind.HomeyerRainbow
+        cmapLbl = 'Reflectivity $(dBZ)$'
+        
+        if vLim:
+            vmin = vLim[0]
+            vmax = vLim[1]
+        else:
+            if vLimMthd is 'default':
+                vmin = -4
+                vmax = 60
+            elif vLimMthd is 'tight':
+                vmin,vmax = getVarLims(pltVar,vLimLevs)
+            elif vLimMthd is 'tightE':
+                vmin,vmax = getVarLims(pltVar,vLimLevs,excldFrame=True)
+            # Not including mirrored options as likely not used for reflectivity
+            
+        # steps = np.abs(vmin)+np.abs(vmax)+1
+        steps = 33
+        bounds = np.linspace(vmin,vmax,steps)
+        norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
+        
+    elif pltFlag == 'w':
+        # cmap = pyart.graph.cm.GrMg16
+        cmap = plt.get_cmap('RdBu_r')
+        cmapLbl = 'Vertical Velocity $(m\ s^{-1})$'
+        
+        if vLim:
+            vmin = vLim[0]
+            vmax = vLim[1]
+        else:
+            if vLimMthd is 'default':
+                vmin = -4
+                vmax = 4
+            elif vLimMthd is 'tight':
+                vmin,vmax = getVarLims(pltVar,vLimLevs)
+            elif vLimMthd is 'tightM':
+                vmin,vmax = getVarLims(pltVar,vLimLevs,mirror=True)
+            elif vLimMthd is 'tightE':
+                vmin,vmax = getVarLims(pltVar,vLimLevs,excldFrame=True)
+            elif vLimMthd is 'tightEM':
+                vmin,vmax = getVarLims(pltVar,vLimLevs,mirror=True,excldFrame=True)
+        
+        steps = np.abs(vmin)+np.abs(vmax)+1
+        bounds = np.linspace(vmin,vmax,steps*5)
+        norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
+        
+    elif pltFlag == 'u':
+        # cmap = pyart.graph.cm.GrMg16
+        cmap = plt.get_cmap('RdBu_r')
+        if strmRel:
+            cmapLbl = 'XS $\parallel$ Storm-Relative Wind Component $(m\ s^{-1})$'
+        else:
+            cmapLbl = 'XS $\parallel$ Wind Component $(m\ s^{-1})$'
+        
+        if vLim:
+            vmin = vLim[0]
+            vmax = vLim[1]
+        else:
+            if vLimMthd is 'default':
+                vmin = -30
+                vmax = 30
+            elif vLimMthd is 'tight':
+                vmin,vmax = getVarLims(pltVar,vLimLevs)
+            elif vLimMthd is 'tightM':
+                vmin,vmax = getVarLims(pltVar,vLimLevs,mirror=True)
+            elif vLimMthd is 'tightE':
+                vmin,vmax = getVarLims(pltVar,vLimLevs,excldFrame=True)
+            elif vLimMthd is 'tightEM':
+                vmin,vmax = getVarLims(pltVar,vLimLevs,mirror=True,excldFrame=True)
+        
+        steps = np.abs(vmin)+np.abs(vmax)+1
+        bounds = np.linspace(vmin,vmax,steps)
+        norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
+        
+    elif pltFlag == 'v':
+        # cmap = pyart.graph.cm.GrMg16
+        cmap = plt.get_cmap('RdBu_r')
+        if strmRel:
+            cmapLbl = 'XS $\perp$ Storm-Relative Wind Component $(m\ s^{-1})$'
+        else:
+            cmapLbl = 'XS $\perp$ Wind Component $(m\ s^{-1})$'
+        
+        if vLim:
+            vmin = vLim[0]
+            vmax = vLim[1]
+        else:
+            if vLimMthd is 'default':
+                vmin = -30
+                vmax = 30
+            elif vLimMthd is 'tight':
+                vmin,vmax = getVarLims(pltVar,vLimLevs)
+            elif vLimMthd is 'tightM':
+                vmin,vmax = getVarLims(pltVar,vLimLevs,mirror=True)
+            elif vLimMthd is 'tightE':
+                vmin,vmax = getVarLims(pltVar,vLimLevs,excldFrame=True)
+            elif vLimMthd is 'tightEM':
+                vmin,vmax = getVarLims(pltVar,vLimLevs,mirror=True,excldFrame=True)
+        
+        steps = np.abs(vmin)+np.abs(vmax)+1
+        bounds = np.linspace(vmin,vmax,steps)
+        norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
+        
+    elif pltFlag == 'vort':
+        # cmap = pyart.graph.cm.GrMg16
+        cmap = plt.get_cmap('RdBu_r')
+        cmapLbl = 'Vertical Vorticity $(s^{-1})$'
+        
+        if vLim:
+            vmin = vLim[0]
+            vmax = vLim[1]
+        else:
+            if vLimMthd is 'default':
+                vmin = -400
+                vmax = 400
+            elif vLimMthd is 'tight':
+                vmin,vmax = getVarLims(pltVar,vLimLevs)
+            elif vLimMthd is 'tightM':
+                vmin,vmax = getVarLims(pltVar,vLimLevs,mirror=True)
+            elif vLimMthd is 'tightE':
+                vmin,vmax = getVarLims(pltVar,vLimLevs,excldFrame=True)
+            elif vLimMthd is 'tightEM':
+                vmin,vmax = getVarLims(pltVar,vLimLevs,mirror=True,excldFrame=True)
+                
+        steps = np.abs(vmin)+np.abs(vmax)+1
+        bounds = np.linspace(vmin,vmax,steps)
+        norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
+                
+    elif pltFlag == 'wind':
+        # cmap = pyart.graph.cm.GrMg16
+        cmap = pyart.graph.cm_colorblind.HomeyerRainbow
+        cmapLbl = 'Wind Speed $(m\ s^{-1})$'
+        
+        if vLim:
+            vmin = vLim[0]
+            vmax = vLim[1]
+        else:
+            if vLimMthd is 'default':
+                vmin = 0
+                vmax = 60
+            elif vLimMthd is 'tight':
+                vmin,vmax = getVarLims(pltVar,vLimLevs)
+            elif vLimMthd is 'tightM':
+                vmin,vmax = getVarLims(pltVar,vLimLevs,mirror=True)
+            elif vLimMthd is 'tightE':
+                vmin,vmax = getVarLims(pltVar,vLimLevs,excldFrame=True)
+            elif vLimMthd is 'tightEM':
+                vmin,vmax = getVarLims(pltVar,vLimLevs,mirror=True,excldFrame=True)
+                
+        steps = np.abs(vmin)+np.abs(vmax)+1
+        bounds = np.linspace(vmin,vmax,steps)
+        norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
+          
+    else:
+        raise ValueError('Plotting flag does not match known options')
+    
+    
+    x1,y1 = xsStrt
+    x2,y2 = xsEnd
+    
+    dx = x2-x1
+    dy = y2-y1
+    # xsAngle = np.rad2deg(np.arctan2(dy,dx))
+    xsAngle = np.arctan2(dy,dx)
+    
+    xsLen_km = np.int(np.round(np.hypot(np.abs(dx),np.abs(dy))))
+    xsNumPts = xsLen_km*xsRes
+    xsX = np.arange(0,xsNumPts)
+
+    if dT is not None:
+        dtTitle = dt.strftime(dT,'%m/%d/%Y %H:%M:%S UTC')
+    else:
+        dtTitle = 'Unknown Date/Time'
+        
+    titleStr = '{}\nVertical Cross Section between ({},{}) & ({},{}) -- {}'.format(dtTitle,x1,y1,x2,y2,runId)
+    
+    
+    uRot3d = (u3d * np.cos(xsAngle)) + (v3d * np.sin(xsAngle)) # Rotates U || to XS
+    vRot3d = (v3d * np.cos(xsAngle)) - (u3d * np.sin(xsAngle))
+    
+    # print('x1,y1={},{}'.format(x1,y1))
+    # print('x2,y2={},{}'.format(x2,y2))
+    # print('dx,dy={},{}'.format(dx,dy))
+    # print('xsAngle={}'.format(xsAngle))
+    # print('u 4km (0,30) = {}\tv 4km (0,30) = {}'.format(u3d[8,155,100],v3d[8,155,100]))
+    # print('uRot 4km (0,30) = {}\tvRot 4km (0,30) = {}'.format(uRot3d[8,155,100],vRot3d[8,155,100]))
+    
+    vertLevs = alt1d.shape[0]
+    xsPltVar = ma.empty((vertLevs,xsNumPts))*np.nan
+    xsUrot = ma.empty((vertLevs,xsNumPts))*np.nan
+    xsVrot = ma.empty((vertLevs,xsNumPts))*np.nan
+    xsW = ma.empty((vertLevs,xsNumPts))*np.nan
+    
+    x_XY = np.array([x1,x2])
+    y_XY = np.array([y1,y2])
+    # Convert from x/y coords to pixel coordinates
+    x_pxl = x1d.shape[0] * (x_XY - x1d.min()) / x1d.ptp()
+    y_pxl = y1d.shape[0] * (y_XY - y1d.min()) / y1d.ptp()
+    x_pxlXS, y_pxlXS = np.linspace(x_pxl[0], x_pxl[1], xsNumPts), np.linspace(y_pxl[0], y_pxl[1], xsNumPts)
+
+    for iz in range(vertLevs):
+        xsPltVar[iz,:] = pltVar3d[iz,y_pxlXS.astype(int), x_pxlXS.astype(int)]
+        xsUrot[iz,:] = uRot3d[iz,y_pxlXS.astype(int), x_pxlXS.astype(int)]
+        xsVrot[iz,:] = vRot3d[iz,y_pxlXS.astype(int), x_pxlXS.astype(int)]
+        xsW[iz,:] = w3d[iz,y_pxlXS.astype(int), x_pxlXS.astype(int)]
+        
+    xStrd = xStrd*xsRes
+    
+    if pltFlag == 'u':
+        xsPltVar = xsUrot
+    if pltFlag == 'v':
+        xsPltVar = xsVrot
+
+    xPntRes = 1000/xsRes
+    
+    if xPntRes == 1000:
+        xLab = 'Distance from ({},{}) (km)'.format(x1,y1)
+    elif xPntRes < 1000:
+        xLab = 'Distance from ({},{}) (each pt = {} m)'.format(x1,y1,xPntRes)
+    elif xPntRes > 1000:
+        xLab = 'Distance from ({},{}) (each pt = {:.2f} km)'.format(x1,y1,xPntRes/1000)
+    
+    fig = plt.figure(figsize=figsize)
+    ax = fig.add_subplot(111)
+    
+    if doPCM:
+        plt.pcolormesh(xsX,alt1d,xsPltVar,cmap=cmap,norm=norm,vmin=vmin,vmax=vmax)
+    else:
+        plt.contourf(xsX,alt1d,xsPltVar,bounds,cmap=cmap,norm=norm)
+    ax.grid(which='major',linewidth=0.5,linestyle='--',color='gray',alpha=0.5)
+    ax.tick_params(labelsize=14)
+    ax.xaxis.set_major_locator(MultipleLocator(20*xsRes))
+    ax.yaxis.set_major_locator(MultipleLocator(2))
+    ax.xaxis.set_minor_locator(MultipleLocator(5*xsRes))
+    ax.yaxis.set_minor_locator(MultipleLocator(0.5))
+    cb = plt.colorbar(shrink=0.8, pad = 0.01, aspect=25)
+    cb.set_label(cmapLbl,size=15)
+    cb.ax.tick_params(labelsize=14)
+    plt.xlabel(xLab,size=15)
+    plt.ylabel('Altitude (km AGL)',size=15)
+    plt.title(titleStr,size=18)
+
+    if vecPlt:
+        plotVec(xsX[2::xStrd],alt1d[2::zStrd],xsUrot[2::zStrd,2::xStrd],xsW[2::zStrd,2::xStrd],crds='xs',quivKeyX=0.97,quivKeyY=1.07)
+    if barbPlt:
+        plotBarbs(xsX[2::xStrd],alt1d[2::zStrd],xsUrot[2::zStrd,2::xStrd],xsW[2::zStrd,2::xStrd],crds='xs')
+        
+    return fig,ax
+
     
 def xsKDtree(lon,lat,xsStrt,xsEnd,xsRes=1.0,leafSz=1):
     """
