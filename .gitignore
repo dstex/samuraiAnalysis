@@ -4,3 +4,5 @@ __pycache__/
 PlotSamurai\.ipynb
 
 _PlotSamurai-deprecated\.ipynb
+
+\.ipynb_checkpoints/

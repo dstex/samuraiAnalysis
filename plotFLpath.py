@@ -1,17 +1,22 @@
 from matplotlib import pyplot as plt
+import numpy as np
 
-def plotFLpath(proj,lon,lat,ax=None,fig=None,
+def plotFLpath(x,y,crds,proj=None,ax=None,fig=None,
                 dubLine=False,**kwargs):
     """
     Plot flight path on top of SAMURAI data (only when plotted atop a map).
     
     Parameters
     ----------
-    proj : cartopy projection handle
-        This parameter is a returned value from the contourSamurai function, and specifies
+    x,y : 1-D float arrays
+        x/y coordinates (if crds = 'xy') or longitudes/latitudes (degrees) of aircraft between given times.
+    crds : string
+        Options are 'map', which uses the native lat/lon path values and will transform them
+        according to the provided projection; 'xy', which will plot plane coordinates provided
+        in cartesian coordinates.
+    proj : cartopy projection handle, required when 'crds' = 'map'
+        This parameter is a returned value from the samPlt.plotContour function, and specifies
         map projection parameters to be used when transforming the FL lat/lon.
-    lon,lat : 1-D float arrays
-        Latitudes and longitudes (degrees) of aircraft between given times.
     ax : axis handle, optional
         Defaults to the current axis.
     fig : figure handle, optional
@@ -30,9 +35,20 @@ def plotFLpath(proj,lon,lat,ax=None,fig=None,
         ax = plt.gca()
     if fig is None:
         fig = plt.gcf()
-        
-    if dubLine:
-        ax.plot(lon,lat,transform=proj,color='k',linewidth=3,linestyle='-')
-        ax.plot(lon,lat,transform=proj,color='w',linewidth=1.5,linestyle='-')
-    else:
-        ax.plot(lon,lat,transform=proj,**kwargs)
+    
+    if crds == 'map':
+        if proj is not None:
+            if dubLine:
+                ax.plot(x,y,transform=proj,color='k',linewidth=3,linestyle='-')
+                ax.plot(x,y,transform=proj,color='w',linewidth=1.5,linestyle='-')
+            else:
+                ax.plot(x,y,transform=proj,**kwargs)
+        else:
+            print('No map projection was provided for transforming FL path... Skipping FL plot.')
+    
+    if crds == 'xy':
+        if dubLine:
+            ax.plot(x,y,color='k',linewidth=3,linestyle='-')
+            ax.plot(x,y,color='w',linewidth=1.5,linestyle='-')
+        else:
+            ax.plot(x,y,**kwargs)

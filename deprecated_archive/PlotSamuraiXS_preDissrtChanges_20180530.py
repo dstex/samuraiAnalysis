@@ -6,13 +6,15 @@ import matplotlib as mpl
 # mpl.use('PDF')
 from matplotlib import pyplot as plt
 import numpy as np
+from matplotlib.patches import Rectangle
 import yaml
 from glob import glob
 import argparse
 
-from samuraiAnalysis import gribTools,plotFLpath,samImport_masked,samImport,samPlt,makeKML,getFLpathData
+from samuraiAnalysis import getVarLims,gribTools,plotFLpath,samImport_masked,samImport,samPlt,makeKML,getFLpathData
 
 getFLpathData = getFLpathData.getFLpathData
+getVarLims = getVarLims.getVarLims
 gribImport = gribTools.gribImport
 gribLevs = gribTools.gribLevs
 plotFLpath = plotFLpath.plotFLpath
@@ -81,6 +83,7 @@ def planContour(pltVar,pltVarLbl,crds):
             
         if plotXSloc:
             if len(xsStrt_map) > 1:
+                lbls = []
                 for iz in range(0,len(xsStrt_map)):
                     xsLat,xsLon,dRnd,hdng = xsCalc(xsStrt_map[iz][0],xsStrt_map[iz][1],xsEnd_map[iz][0],xsEnd_map[iz][1])
                     ax.plot(xsLon,xsLat,transform=proj,linestyle='-',linewidth=2,color='k')
@@ -94,10 +97,22 @@ def planContour(pltVar,pltVarLbl,crds):
                                 textcoords='offset points',fontsize=13,color='k',
                                 bbox=dict(boxstyle="round", fc="w",alpha=0.7,pad=0.04),
                                 arrowprops=dict(fc='w',ec='k',alpha=0.7,shrink=0.05,width=2,headwidth=8,headlength=8))
- 
+                    if iz == len(xsStrt_map)-1:
+                        lbls.append('{} - ({:.2f},{:.2f})-({:.2f},{:.2f})'.format(iz+1,xsStrt_map[iz][0],xsStrt_map[iz][1],
+                                                                                  xsEnd_map[iz][0],xsEnd_map[iz][1]))
+                    else:
+                        lbls.append('{} - ({:.2f},{:.2f})-({:.2f},{:.2f})\n'.format(iz+1,xsStrt_map[iz][0],xsStrt_map[iz][1],
+                                                                                    xsEnd_map[iz][0],xsEnd_map[iz][1]))
+
+                lblStr = ''.join(lbls)
+                # ax.text(0.99,0.99,lblStr,ha='right',va='top',transform=ax.transAxes,
+                #          bbox=dict(boxstyle='square',fc='w',ec='k',pad=0.15,alpha=0.75))
+                xsStrng = 'multXS'
             else:
                 xsLat,xsLon,dRnd,hdng = xsCalc(xsStrt_map[0][0],xsStrt_map[0][1],xsEnd_map[0][0],xsEnd_map[0][1])
                 ax.plot(xsLon,xsLat,transform=proj,linestyle='-',linewidth=2,color='k')
+                xsStrng = '{:.0f}{:.0f}-{:.0f}{:.0f}'.format(xsStrt_map[0][0]*10,xsStrt_map[0][1]*-10,
+                                                           xsEnd_map[0][0]*10,xsEnd_map[0][1]*-10)
         
             if noBorder:
                 if strmRel:
@@ -114,6 +129,7 @@ def planContour(pltVar,pltVarLbl,crds):
                 fig.savefig(saveStr,bbox_inches='tight')
         
         else:
+            fig.tight_layout()
             if noBorder:
                 saveStr = '{}NB_{}{}_{}_{}_{:.1f}km.{}'.format(savePath,dtSave,runIdSv,'map',pltVarLbl,lev,fType)
                 fig.savefig(saveStr,bbox_inches='tight',pad_inches=0)
@@ -141,13 +157,13 @@ def planContour(pltVar,pltVarLbl,crds):
         if vecType == 'stream':
             plotStream(x1d,y1d,u[int(lev*2),:,:],v[int(lev*2),:,:],'xy',strmRel=strmRel)
         
-        
         if pltFT:
             fl_x,fl_y = map2xy(flLon,flLat,lon_0,lat_0)
             plotFLpath(fl_x,fl_y,crds,dubLine=True)
             
         if plotXSloc:
             if len(xsStrt) > 1:
+                lbls = []
                 if xsLocs is not None:
                     locIter = xsLocs
                 else:
@@ -160,9 +176,7 @@ def planContour(pltVar,pltVarLbl,crds):
                     
                     
                     ax.plot([x1_tmp,x2_tmp],[y1_tmp,y2_tmp],linestyle='-',linewidth=2,color='k')
-                    # Plot markers on XS line - need to adjust the increment depending on XS length (need to automate this)
                     ax.scatter(np.linspace(x1_tmp,x2_tmp,20),np.linspace(y1_tmp,y2_tmp,20),s=100,color='b',edgecolor='w')
-                    
                     if iz%2 == 0:
                         xyP = (x1_tmp,y1_tmp) # Label the start of the cross section
                         xyT = (-25,-25)
@@ -182,6 +196,7 @@ def planContour(pltVar,pltVarLbl,crds):
                 x2_tmp = xsEnd[0][0]
                 y2_tmp = xsEnd[0][1]
                 ax.plot([x1_tmp,x2_tmp],[y1_tmp,y2_tmp],linestyle='-',linewidth=2,color='k')
+                xsStrng = '[{},{}]-[{},{}]'.format(x1_tmp,y1_tmp,x2_tmp,y2_tmp)
 
             if strmRel:
                 saveStr = '{}{}{}_{}_{}-SR_{:.1f}km_xsLoc.{}'.format(savePath,dtSave,runIdSv,'xy',pltVarLbl,lev,fType)
@@ -191,6 +206,7 @@ def planContour(pltVar,pltVarLbl,crds):
             fig.savefig(saveStr,bbox_inches='tight')
         
         else:
+            # fig.tight_layout()
             if strmRel:
                 saveStr = '{}{}{}_{}_{}-SR_{:.1f}km.{}'.format(savePath,dtSave,runIdSv,'xy',pltVarLbl,lev,fType)
             else:
